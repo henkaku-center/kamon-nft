@@ -1,7 +1,8 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "script": "yarn run hardhat run scripts/run.js"
+    "script": "yarn run hardhat run scripts/run.js",
+    "admin": "yarn run hardhat run scripts/admin.js"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
@@ -11,5 +12,8 @@
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.4",
     "hardhat": "^2.8.3"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.2"
   }
 }
