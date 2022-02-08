@@ -6,8 +6,10 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "./ConsensusAdminable.sol";
 
 contract PodCastNFT is ERC721, ConsensusAdminable {
-    constructor(address[] memory _admin, bool givenHighestAuthority) ConsensusAdminable(_admin, givenHighestAuthority) ERC721("Henkaku NFT", "henkaku")  {
-      //addInitialAdmins(_admins, false);
+    constructor(address[] memory _admin, bool givenHighestAuthority)
+      ConsensusAdminable(_admin, givenHighestAuthority)
+      ERC721("Henkaku NFT", "henkaku")  {
+
     }
 
     function updateNFT(uint256 tokenId) public {
