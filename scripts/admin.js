@@ -3,7 +3,7 @@ const hre = require("hardhat");
 const main = async () => {
   const [admin1, admin2, user1, user2] = await hre.ethers.getSigners()
   const podcastNFTContract = await hre.ethers.getContractFactory("PodCastNFT");
-  const contract = await podcastNFTContract.deploy([admin1.address, admin2.address]);
+  const contract = await podcastNFTContract.deploy([admin1.address, admin2.address], false);
 
   await contract.deployed();
 

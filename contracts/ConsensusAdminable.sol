@@ -18,8 +18,8 @@ contract ConsensusAdminable is AccessControl {
     uint private _numberOfAdmins;
     mapping(bytes32 => mapping(address => Vote)) private votes;
 
-    constructor() {
-
+    constructor(address[] memory _admin, bool givenHighestAuthority) {
+      addInitialAdmins(_admin, givenHighestAuthority);
     }
 
     function _hasConsensus(address _candidate, bytes32 _role) public view returns (bool) {
@@ -54,7 +54,7 @@ contract ConsensusAdminable is AccessControl {
       for (uint i=0; i < _admins.length; i++) {
         _grantRole(ADMIN_ROLE, _admins[i]);
         if (givenHighestAuthority) {
-        _grantRole(DEFAULT_ADMIN_ROLE, _admins[i]);
+          _grantRole(DEFAULT_ADMIN_ROLE, _admins[i]);
         }
         _numberOfAdmins ++;
       }
