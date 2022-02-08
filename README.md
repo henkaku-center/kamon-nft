@@ -7,3 +7,9 @@ Try running some of the following tasks:
 ```shell
 yarn run script
 ```
+
+# test
+
+```shell
+ yarn run test
+```

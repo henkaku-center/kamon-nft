@@ -2,7 +2,8 @@
   "name": "hardhat-project",
   "scripts": {
     "script": "yarn run hardhat run scripts/run.js",
-    "admin": "yarn run hardhat run scripts/admin.js"
+    "admin": "yarn run hardhat run scripts/admin.js",
+    "test": "yarn run hardhat test"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
