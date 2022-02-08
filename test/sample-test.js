@@ -1,19 +1,24 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Greeter", function () {
-  it("Should return the new greeting once it's changed", async function () {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+async function deploy(name, ...params) {
+  const Contract = await ethers.getContractFactory(name);
+  return await Contract.deploy(...params).then((f) => f.deployed());
+}
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+describe("PodCastNFT", function () {
+  beforeEach(async function () {
+    this.forwarder = await deploy("MinimalForwarder");
+    this.podcastNFT = await deploy("PodCastNFT", this.forwarder.address);
+    this.accounts = await ethers.getSigners();
+  });
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
+  // adminはmintできる
+  it("can mint for admin", async function () {
+    const sender = this.accounts[1];
+    const podcastNFT = this.podcastNFT.connect(sender);
 
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
-
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
+    const receipt = await podcastNFT.mintAndTransfer(sender.address).then((tx) => tx.wait());
+    expect(await podcastNFT.ownerOf(1)).to.be.equal(sender.address);
   });
 });
