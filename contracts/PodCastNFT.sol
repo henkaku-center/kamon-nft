@@ -12,10 +12,25 @@ contract PodCastNFT is ERC721, ConsensusAdminable {
 
     }
 
+    receive() external payable {
+      console.log(msg.value);
+      console.log("receive");
+    }
+
+
+    fallback() external payable {
+      console.log(msg.value);
+      console.log("fallback");
+    }
+
     function updateNFT(uint256 tokenId) public {
       require(hasRole(ADMIN_ROLE, msg.sender), "You are not authorized to update nft");
       //TODO update nft
       console.log("Wow epic!!");
+    }
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
