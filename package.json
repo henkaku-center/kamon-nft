@@ -3,6 +3,7 @@
   "scripts": {
     "script": "yarn run hardhat run scripts/run.js",
     "admin": "yarn run hardhat run scripts/admin.js",
+    "sendeth": "yarn run hardhat run scripts/sendEther.js",
     "test": "yarn run hardhat test"
   },
   "devDependencies": {
