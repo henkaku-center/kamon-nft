@@ -60,9 +60,7 @@ contract PodCastNFT is ERC721, IERC721Receiver, ConsensusAdminable {
         _tokenIds.increment();
 
         uint256 newItemId = _tokenIds.current();
-        _safeMint(address(this), newItemId);
-        _approve(address(this), newItemId);
-        _transfer(address(this), _to, newItemId);
+        _safeMint(_to, newItemId);
 
         return newItemId;
     }
