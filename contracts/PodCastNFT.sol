@@ -3,11 +3,10 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./ConsensusAdminable.sol";
 
-contract PodCastNFT is ERC721, IERC721Receiver, ConsensusAdminable {
+contract PodCastNFT is ERC721, ConsensusAdminable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -63,14 +62,5 @@ contract PodCastNFT is ERC721, IERC721Receiver, ConsensusAdminable {
         _safeMint(_to, newItemId);
 
         return newItemId;
-    }
-
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) external pure override returns (bytes4) {
-        return this.onERC721Received.selector;
     }
 }
