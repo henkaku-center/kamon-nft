@@ -8,7 +8,9 @@ const main = async () => {
   await contract.deployed();
   console.log("deployed to:", contract.address);
 
-  const tx = await contract.mintAndTransfer(randomUser.address);
+  const tx = await contract.mintAndTransfer(
+    "0x894108DC5640e36c478523228addA22b58Eeb79c"
+  );
   await tx.wait();
 
   const user = await contract.ownerOf(1);

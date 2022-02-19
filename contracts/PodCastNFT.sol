@@ -33,8 +33,8 @@ contract PodCastNFT is ERC721URIStorage {
                         '"Henkaku PodCast NFT",',
                         '"description": ',
                         '"Henkaku PodCast NFT prototype",',
-                        '"image": "',
-                        svg,
+                        '"image": "data:image/svg+xml;base64,',
+                        Base64.encode(bytes(svg)),
                         '"}'
                     )
                 )
