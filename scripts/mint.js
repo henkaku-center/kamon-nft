@@ -8,7 +8,10 @@ const main = async () => {
   await contract.deployed();
   console.log("deployed to:", contract.address);
 
-  const tx = await contract.mintAndTransfer(randomUser.address);
+  const tx = await contract.mintAndTransfer(
+    "https://pitpa.mypinata.cloud/ipfs/QmW2AHtZWdeE73ae73PkexAHDboisuZiyB8hGJtyXn5bCn",
+    randomUser.address
+  );
   await tx.wait();
 
   const user = await contract.ownerOf(1);
