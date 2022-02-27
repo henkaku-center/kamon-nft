@@ -10,6 +10,8 @@ const main = async () => {
 
   const tx1 = await contract.mintAndTransfer(
     "https://dl.dropboxusercontent.com/s/ifuvt9h1spilofh/QmW2AHtZWdeE73ae73PkexAHDboisuZiyB8hGJtyXn5bCn.png",
+    "Henkaku Master",
+    "10000"
     owner.address
   );
   await tx1.wait();
@@ -21,7 +23,9 @@ const main = async () => {
 
   const tx2 = await contract.updateNFT(
     1,
-    "https://dl.dropboxusercontent.com/s/svwstwur6kqdaib/DmW2AHtZWdeE73ae73PkexAHDboisuZiyB8hGJtyXn5bCn.png"
+    "https://dl.dropboxusercontent.com/s/svwstwur6kqdaib/DmW2AHtZWdeE73ae73PkexAHDboisuZiyB8hGJtyXn5bCn.png",
+    "Henkaku King",
+    "100000000"
   );
   await tx2.wait();
 

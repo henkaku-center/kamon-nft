@@ -27,14 +27,17 @@ contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
         console.log("fallback");
     }
 
-    function updateNFT(uint256 tokenId, string memory _imageURI) public {
+    function updateNFT(
+        uint256 tokenId,
+        string memory _imageURI,
+        string memory _role,
+        string memory _point
+    ) public {
         require(
             hasRole(ADMIN_ROLE, msg.sender),
             "You are not authorized to update nft"
         );
-        //TODO update nft
-        console.log("Wow epic!!");
-        string memory finalTokenUri = getTokenURI(_imageURI);
+        string memory finalTokenUri = getTokenURI(_imageURI, _role, _point);
         _setTokenURI(tokenId, finalTokenUri);
     }
 
@@ -55,11 +58,12 @@ contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
             super.supportsInterface(interfaceId);
     }
 
-    function getTokenURI(string memory _imageURI)
-        public
-        view
-        returns (string memory)
-    {
+    function getTokenURI(
+        string memory _imageURI,
+        string memory _role,
+        string memory _point
+    ) public view returns (string memory) {
+        console.log(_point);
         string memory json = Base64.encode(
             bytes(
                 string(
@@ -67,10 +71,22 @@ contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
                         '{"name": ',
                         '"Membership NFT",',
                         '"description": ',
-                        '"The membership card of this Henkaku community represents the contribution of the podcast",',
+                        '"The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n',
+                        "**Special thanks**\\n\\n",
+                        "NFT Design:\\n\\n",
+                        "Digital Garage team\\n\\n",
+                        "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n",
+                        "Engineering:\\n\\n",
+                        'isbtty, yasek, geeknees",',
                         '"image": "',
                         _imageURI,
-                        '"}'
+                        '",',
+                        '"attributes": [',
+                        '{"trait_type": "Role", "value": "',
+                        _role,
+                        '"},{"display_type": "number", "trait_type": "Point", "value": "',
+                        _point,
+                        '"}]}'
                     )
                 )
             )
@@ -78,10 +94,12 @@ contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
         return string(abi.encodePacked("data:application/json;base64,", json));
     }
 
-    function mintAndTransfer(string memory _imageURI, address _to)
-        public
-        returns (uint256)
-    {
+    function mintAndTransfer(
+        string memory _imageURI,
+        string memory _role,
+        string memory _point,
+        address _to
+    ) public returns (uint256) {
         require(
             hasRole(ADMIN_ROLE, msg.sender),
             "You are not authorized to mint"
@@ -91,7 +109,7 @@ contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
         uint256 newItemId = _tokenIds.current();
         _safeMint(_to, newItemId);
 
-        string memory finalTokenUri = getTokenURI(_imageURI);
+        string memory finalTokenUri = getTokenURI(_imageURI, _role, _point);
         _setTokenURI(newItemId, finalTokenUri);
 
         return newItemId;

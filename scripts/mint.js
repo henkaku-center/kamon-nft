@@ -10,6 +10,8 @@ const main = async () => {
 
   const tx = await contract.mintAndTransfer(
     "https://dl.dropboxusercontent.com/s/ifuvt9h1spilofh/QmW2AHtZWdeE73ae73PkexAHDboisuZiyB8hGJtyXn5bCn.png",
+    "Henkaku Master",
+    "10000",
     owner.address
   );
   await tx.wait();
