@@ -2,11 +2,13 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./ConsensusAdminable.sol";
 
-contract PodCastNFT is ERC721, ConsensusAdminable {
+import {Base64} from "./libraries/Base64.sol";
+
+contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -25,13 +27,18 @@ contract PodCastNFT is ERC721, ConsensusAdminable {
         console.log("fallback");
     }
 
-    function updateNFT(uint256 tokenId) public {
+    function updateNFT(
+        uint256 tokenId,
+        string memory _imageURI,
+        string memory _role,
+        string memory _point
+    ) public {
         require(
             hasRole(ADMIN_ROLE, msg.sender),
             "You are not authorized to update nft"
         );
-        //TODO update nft
-        console.log("Wow epic!!");
+        string memory finalTokenUri = getTokenURI(_imageURI, _role, _point);
+        _setTokenURI(tokenId, finalTokenUri);
     }
 
     function getBalance() public view returns (uint256) {
@@ -51,15 +58,59 @@ contract PodCastNFT is ERC721, ConsensusAdminable {
             super.supportsInterface(interfaceId);
     }
 
-    function mintAndTransfer(address _to) public returns (uint256) {
+    function getTokenURI(
+        string memory _imageURI,
+        string memory _role,
+        string memory _point
+    ) public view returns (string memory) {
+        console.log(_point);
+        string memory json = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '{"name": ',
+                        '"Membership NFT",',
+                        '"description": ',
+                        '"The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n',
+                        "**Special thanks**\\n\\n",
+                        "NFT Design:\\n\\n",
+                        "Digital Garage team\\n\\n",
+                        "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n",
+                        "Engineering:\\n\\n",
+                        'isbtty, yasek, geeknees",',
+                        '"image": "',
+                        _imageURI,
+                        '",',
+                        '"attributes": [',
+                        '{"trait_type": "Role", "value": "',
+                        _role,
+                        '"},{"display_type": "number", "trait_type": "Point", "value": "',
+                        _point,
+                        '"}]}'
+                    )
+                )
+            )
+        );
+        return string(abi.encodePacked("data:application/json;base64,", json));
+    }
+
+    function mintAndTransfer(
+        string memory _imageURI,
+        string memory _role,
+        string memory _point,
+        address _to
+    ) public returns (uint256) {
         require(
             hasRole(ADMIN_ROLE, msg.sender),
             "You are not authorized to mint"
         );
-        _tokenIds.increment();
 
+        _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _safeMint(_to, newItemId);
+
+        string memory finalTokenUri = getTokenURI(_imageURI, _role, _point);
+        _setTokenURI(newItemId, finalTokenUri);
 
         return newItemId;
     }

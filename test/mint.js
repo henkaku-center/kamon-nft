@@ -16,7 +16,12 @@ describe("PodCastNFT free mint", function () {
     contract = await Contract.deploy([owner.address], false);
     await contract.deployed();
 
-    const mintTx = await contract.mintAndTransfer(user1.address);
+    const mintTx = await contract.mintAndTransfer(
+      "https://example.com/podcast.png",
+      "Henkaku Master",
+      "10000",
+      user1.address
+    );
     await mintTx.wait();
     expect(await contract.ownerOf(1)).to.be.equal(user1.address);
   });
