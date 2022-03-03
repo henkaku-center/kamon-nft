@@ -14,18 +14,8 @@ contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
 
     constructor(address[] memory _admin, bool givenHighestAuthority)
         ConsensusAdminable(_admin, givenHighestAuthority)
-        ERC721("Henkaku NFT", "henkaku")
+        ERC721("Henkaku v0.1", "henkaku")
     {}
-
-    receive() external payable {
-        console.log(msg.value);
-        console.log("receive");
-    }
-
-    fallback() external payable {
-        console.log(msg.value);
-        console.log("fallback");
-    }
 
     function updateNFT(
         uint256 tokenId,
@@ -39,10 +29,6 @@ contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
         );
         string memory finalTokenUri = getTokenURI(_imageURI, _role, _point);
         _setTokenURI(tokenId, finalTokenUri);
-    }
-
-    function getBalance() public view returns (uint256) {
-        return address(this).balance;
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -75,7 +61,7 @@ contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
                         "**Special thanks**\\n\\n",
                         "NFT Design:\\n\\n",
                         "Digital Garage team\\n\\n",
-                        "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n",
+                        "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n",
                         "Engineering:\\n\\n",
                         'isbtty, yasek, geeknees",',
                         '"image": "',
@@ -94,7 +80,7 @@ contract PodCastNFT is ERC721URIStorage, ConsensusAdminable {
         return string(abi.encodePacked("data:application/json;base64,", json));
     }
 
-    function mintAndTransfer(
+    function mint(
         string memory _imageURI,
         string memory _role,
         string memory _point,

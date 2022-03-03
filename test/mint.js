@@ -16,7 +16,7 @@ describe("PodCastNFT free mint", function () {
     contract = await Contract.deploy([owner.address], false);
     await contract.deployed();
 
-    const mintTx = await contract.mintAndTransfer(
+    const mintTx = await contract.mint(
       "https://example.com/podcast.png",
       "Henkaku Master",
       "10000",
