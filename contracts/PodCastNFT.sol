@@ -26,7 +26,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
 
     function _communityMember(uint256 _tokenId) internal view returns (string memory) {
       if (isCommunityMember(_tokenId)) {
-        return "henkaku community member";
+        return "Henkaku community member";
       }
       return "N/A";
     }
