@@ -18,17 +18,32 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
         ERC721("Henkaku v0.1", "henkaku")
     {}
 
+    mapping(uint256 => bool) private _communityMemberShip;
+
+    function isCommunityMember(uint256 _tokenId) public view returns(bool){
+      return _communityMemberShip[_tokenId];
+    }
+
+    function _communityMember(uint256 _tokenId) internal view returns (string memory) {
+      if (isCommunityMember(_tokenId)) {
+        return "henkaku community member";
+      }
+      return "N/A";
+    }
+
     function updateNFT(
         uint256 tokenId,
         string memory _imageURI,
         string memory _role,
+        bool _isCommunityMember,
         string memory _point
     ) public {
         require(
             hasRole(ADMIN_ROLE, msg.sender),
             "You are not authorized to update nft"
         );
-        string memory finalTokenUri = getTokenURI(_imageURI, _role, _point);
+        string memory finalTokenUri = getTokenURI(tokenId, _imageURI, _role, _point);
+        _communityMemberShip[tokenId] = _isCommunityMember;
         _setTokenURI(tokenId, finalTokenUri);
     }
 
@@ -46,11 +61,11 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
     }
 
     function getTokenURI(
+        uint256 _tokenId,
         string memory _imageURI,
         string memory _role,
         string memory _point
-    ) public view returns (string memory) {
-        console.log(_point);
+    ) internal view returns (string memory) {
         string memory json = Base64.encode(
             bytes(
                 string(
@@ -71,6 +86,9 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
                         '"attributes": [',
                         '{"trait_type": "Role", "value": "',
                         _role,
+                        '"},',
+                        '{"trait_type": "Henkaku Community member", "value": "',
+                        _communityMember(_tokenId),
                         '"},{"display_type": "number", "trait_type": "Point", "value": "',
                         _point,
                         '"}]}'
@@ -85,6 +103,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
         string memory _imageURI,
         string memory _role,
         string memory _point,
+        bool _isCommunityMember,
         address _to
     ) public returns (uint256) {
         require(
@@ -96,7 +115,8 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
         uint256 newItemId = _tokenIds.current();
         _safeMint(_to, newItemId);
 
-        string memory finalTokenUri = getTokenURI(_imageURI, _role, _point);
+        _communityMemberShip[newItemId] = _isCommunityMember;
+        string memory finalTokenUri = getTokenURI(newItemId, _imageURI, _role, _point);
         _setTokenURI(newItemId, finalTokenUri);
 
         return newItemId;
