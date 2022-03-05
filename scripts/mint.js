@@ -17,7 +17,6 @@ const main = async () => {
   );
   await tx.wait();
 
-  await tx.wait();
   const user = await contract.ownerOf(1);
   console.log("Owner:", user);
   const uri = await contract.tokenURI(1);
