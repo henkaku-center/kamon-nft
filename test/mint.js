@@ -19,7 +19,7 @@ describe("PodCastNFT free mint", function () {
     const mintTx = await contract.mint(
       "https://example.com/podcast.png",
       "Podcast Contributor",
-      true,
+      "",
       "10000",
       user1.address
     );
@@ -35,7 +35,7 @@ describe("PodCastNFT free mint", function () {
     let mintTx = await contract.mint(
       "https://example.com/podcast.png",
       "Podcast Contributor",
-      true,
+      "",
       "10000",
       user1.address
     );
@@ -44,11 +44,13 @@ describe("PodCastNFT free mint", function () {
     mintTx = await contract.mint(
       "https://example.com/podcast.png",
       "Podcast Contributor",
-      false,
+      "Henkaku Community Member",
       "10000",
       user1.address
     );
     await mintTx.wait();
+
+    expect(await contract.isCommunityMember(1)).to.be.equal(false);
     expect(await contract.isCommunityMember(2)).to.be.equal(true);
   });
 });
