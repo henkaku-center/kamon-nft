@@ -24,13 +24,6 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
       return _communityMemberShip[_tokenId];
     }
 
-    function _communityMember(uint256 _tokenId) internal view returns (string memory) {
-      if (isCommunityMember(_tokenId)) {
-        return "Henkaku community member";
-      }
-      return "N/A";
-    }
-
     function updateNFT(
         uint256 tokenId,
         string memory _imageURI,
@@ -66,34 +59,36 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
         string memory _role,
         string memory _point
     ) internal view returns (string memory) {
+        string memory _name = "Membership NFT";
+        string memory _description = "The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n"
+          "**Special thanks**\\n\\n"
+          "NFT Design:\\n\\n"
+          "Digital Garage team\\n\\n"
+          "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n"
+          "Engineering:\\n\\n"
+          "isbtty, yasek, geeknees";
+
+        bytes memory _attributes;
+        if (isCommunityMember(_tokenId)) {
+          _attributes = abi.encodePacked(
+            '"attributes": [{"trait_type": "Role", "value": "', _role, '"},',
+            '{"trait_type": "Henkaku Community member", "value": "Henkaku Community Member"},',
+            '{"display_type": "number", "trait_type": "Point", "value": "', _point, '"}]'
+          );
+        } else {
+          _attributes = abi.encodePacked(
+            '"attributes": [{"trait_type": "Role", "value": "', _role, '"},',
+            '{"display_type": "number", "trait_type": "Point", "value": "', _point, '"}]'
+          );
+        }
+
         string memory json = Base64.encode(
-            bytes(
-                string(
-                    abi.encodePacked(
-                        '{"name": ',
-                        '"Membership NFT",',
-                        '"description": ',
-                        '"The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n',
-                        "**Special thanks**\\n\\n",
-                        "NFT Design:\\n\\n",
-                        "Digital Garage team\\n\\n",
-                        "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n",
-                        "Engineering:\\n\\n",
-                        'isbtty, yasek, geeknees",',
-                        '"image": "',
-                        _imageURI,
-                        '",',
-                        '"attributes": [',
-                        '{"trait_type": "Role", "value": "',
-                        _role,
-                        '"},',
-                        '{"trait_type": "Henkaku Community member", "value": "',
-                        _communityMember(_tokenId),
-                        '"},{"display_type": "number", "trait_type": "Point", "value": "',
-                        _point,
-                        '"}]}'
-                    )
-                )
+            abi.encodePacked(
+                '{"name": "', _name, '",'
+                '"description": "', _description, '",'
+                '"image": "', _imageURI, '",',
+                string(_attributes),
+                "}"
             )
         );
         return string(abi.encodePacked("data:application/json;base64,", json));
