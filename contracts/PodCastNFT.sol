@@ -113,7 +113,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
         );
         require(
           balanceOf(_to) == 0,
-          "User have had already a memebrship NFT"
+          "User has had already a memebrship NFT"
         );
 
         _tokenIds.increment();
