@@ -17,14 +17,6 @@ const main = async () => {
   );
   await tx.wait();
 
-  const tx = await contract.mint(
-    "https://dl.dropboxusercontent.com/s/ifuvt9h1spilofh/QmW2AHtZWdeE73ae73PkexAHDboisuZiyB8hGJtyXn5bCn.png",
-    "Henkaku Master",
-    "",
-    "10000",
-    owner.address
-  );
-
   await tx.wait();
   const user = await contract.ownerOf(1);
   console.log("Owner:", user);

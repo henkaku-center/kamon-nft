@@ -111,6 +111,10 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
             hasRole(ADMIN_ROLE, msg.sender),
             "You are not authorized to mint"
         );
+        require(
+          balanceOf(_to) == 0,
+          "User have had already a memebrship NFT"
+        );
 
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
