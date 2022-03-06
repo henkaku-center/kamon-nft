@@ -20,12 +20,16 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
 
     mapping(uint256 => bool) private _communityMemberShip;
 
-    function isCommunityMember(uint256 _tokenId) public view returns(bool) {
-      return _communityMemberShip[_tokenId];
+    function isCommunityMember(uint256 _tokenId) public view returns (bool) {
+        return _communityMemberShip[_tokenId];
     }
 
-    function isCommunityMemberByCommunityRole(string memory _roleInCommunity) internal pure returns(bool) {
-      return bytes(_roleInCommunity).length > 2;
+    function isCommunityMemberByCommunityRole(string memory _roleInCommunity)
+        internal
+        pure
+        returns (bool)
+    {
+        return bytes(_roleInCommunity).length > 2;
     }
 
     function updateNFT(
@@ -40,8 +44,16 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
             "You are not authorized to update nft"
         );
 
-        _communityMemberShip[tokenId] = isCommunityMemberByCommunityRole(_roleInCommunity);
-        string memory finalTokenUri = getTokenURI(tokenId, _imageURI, _role, _roleInCommunity, _point);
+        _communityMemberShip[tokenId] = isCommunityMemberByCommunityRole(
+            _roleInCommunity
+        );
+        string memory finalTokenUri = getTokenURI(
+            tokenId,
+            _imageURI,
+            _role,
+            _roleInCommunity,
+            _point
+        );
         _setTokenURI(tokenId, finalTokenUri);
     }
 
@@ -67,32 +79,48 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
     ) internal view returns (string memory) {
         string memory _name = "Membership NFT";
         string memory _description = "The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n"
-          "**Special thanks**\\n\\n"
-          "NFT Design:\\n\\n"
-          "Digital Garage team\\n\\n"
-          "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n"
-          "Engineering:\\n\\n"
-          "isbtty, yasek, geeknees";
+        "**Special thanks**\\n\\n"
+        "NFT Design:\\n\\n"
+        "Digital Garage team\\n\\n"
+        "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n"
+        "Engineering:\\n\\n"
+        "isbtty, yasek, geeknees";
 
         bytes memory _attributes;
         if (isCommunityMember(_tokenId)) {
-          _attributes = abi.encodePacked(
-            '"attributes": [{"trait_type": "Role", "value": "', _role, '"},',
-            '{"trait_type": "Henkaku Community member", "value": "', _roleInCommunity, '"},',
-            '{"display_type": "number", "trait_type": "Point", "value": "', _point, '"}]'
-          );
+            _attributes = abi.encodePacked(
+                '"attributes": [{"trait_type": "Role", "value": "',
+                _role,
+                '"},',
+                '{"trait_type": "Henkaku Community member", "value": "',
+                _roleInCommunity,
+                '"},',
+                '{"display_type": "number", "trait_type": "Point", "value": "',
+                _point,
+                '"}]'
+            );
         } else {
-          _attributes = abi.encodePacked(
-            '"attributes": [{"trait_type": "Role", "value": "', _role, '"},',
-            '{"display_type": "number", "trait_type": "Point", "value": "', _point, '"}]'
-          );
+            _attributes = abi.encodePacked(
+                '"attributes": [{"trait_type": "Role", "value": "',
+                _role,
+                '"},',
+                '{"display_type": "number", "trait_type": "Point", "value": "',
+                _point,
+                '"}]'
+            );
         }
 
         string memory json = Base64.encode(
             abi.encodePacked(
-                '{"name": "', _name, '",'
-                '"description": "', _description, '",'
-                '"image": "', _imageURI, '",',
+                '{"name": "',
+                _name,
+                '",'
+                '"description": "',
+                _description,
+                '",'
+                '"image": "',
+                _imageURI,
+                '",',
                 string(_attributes),
                 "}"
             )
@@ -111,17 +139,22 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
             hasRole(ADMIN_ROLE, msg.sender),
             "You are not authorized to mint"
         );
-        require(
-          balanceOf(_to) == 0,
-          "User has had already a memebrship NFT"
-        );
+        require(balanceOf(_to) == 0, "User has had already a memebrship NFT");
 
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _safeMint(_to, newItemId);
 
-        _communityMemberShip[newItemId] = isCommunityMemberByCommunityRole(_roleInCommunity);
-        string memory finalTokenUri = getTokenURI(newItemId, _imageURI, _role, _roleInCommunity, _point);
+        _communityMemberShip[newItemId] = isCommunityMemberByCommunityRole(
+            _roleInCommunity
+        );
+        string memory finalTokenUri = getTokenURI(
+            newItemId,
+            _imageURI,
+            _role,
+            _roleInCommunity,
+            _point
+        );
         _setTokenURI(newItemId, finalTokenUri);
 
         return newItemId;
