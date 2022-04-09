@@ -4,7 +4,7 @@ const { ethers } = require("hardhat");
 const chaiAsPromised = require("chai-as-promised");
 
 chai.use(chaiAsPromised);
-describe("consensusAdminable", function () {
+describe("Onwer", function () {
   let Contract, contract
   const ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ADMIN_ROLE"))
   before(async () => {
