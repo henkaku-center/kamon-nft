@@ -48,6 +48,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         roles[_to].push(_role);
     }
 
+    // TODO implement updateNFT func which holder can change their name, imageURL by them self
     function updateOwnNFT(string memory _imageURI, string memory name) public {}
 
     function updateNFT(
