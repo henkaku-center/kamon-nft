@@ -16,10 +16,10 @@ describe('PodCastNFT', function () {
   })
 
   describe('getRoles', () => {
-    it('revert without nft', async () => {
-      await expect(contract.getRoles(alice.address)).to.be.revertedWith(
-        'wallet must have membership nft'
-      )
+    it('return empty without nft', async () => {
+      expect(
+        await contract.getRoles(alice.address)
+      ).to.eql([])
     })
     it('can retrieve roles', async () => {
       const mintTx = await contract.mint(
@@ -38,10 +38,10 @@ describe('PodCastNFT', function () {
   })
 
   describe('hasRoleOf', () => {
-    it('revert without nft', async () => {
-      await expect(
-        contract.hasRoleOf(alice.address, 'MEMBER')
-      ).to.be.revertedWith('wallet must have membership nft')
+    it('return false without nft', async () => {
+      expect(
+        await contract.hasRoleOf(alice.address, 'MEMBER')
+      ).to.be.false
     })
     it('returns true with member and false with admin role', async () => {
       const mintTx = await contract.mint(

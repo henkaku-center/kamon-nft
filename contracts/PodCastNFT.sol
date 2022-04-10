@@ -17,8 +17,12 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     mapping(address => string[]) public roles;
     mapping(uint256 => bool) private _communityMemberShip;
 
-    function getRoles(address _address) public view returns (string[] memory) {
+    modifier onlyHolder(address _address) {
         require(balanceOf(_address) != 0, "wallet must have membership nft");
+        _;
+    }
+
+    function getRoles(address _address) public view returns (string[] memory) {
         return roles[_address];
     }
 
@@ -27,7 +31,6 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         view
         returns (bool)
     {
-        require(balanceOf(_address) != 0, "wallet must have membership nft");
         string[] memory _roles = roles[_address];
         for (uint256 i = 0; i < _roles.length; i++) {
             if (keccak256(bytes(_roles[i])) == keccak256(bytes(_role))) {
@@ -37,13 +40,11 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         return false;
     }
 
-    function setRoles(address _to, string[] memory _roles) public onlyOwner {
-        require(balanceOf(_to) != 0, "wallet must have membership nft");
+    function setRoles(address _to, string[] memory _roles) public onlyOwner onlyHolder(_to) {
         roles[_to] = _roles;
     }
 
-    function addRole(address _to, string memory _role) public onlyOwner {
-        require(balanceOf(_to) != 0, "wallet must have membership nft");
+    function addRole(address _to, string memory _role) public onlyOwner onlyHolder(_to) {
         roles[_to].push(_role);
     }
 
