@@ -134,7 +134,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _safeMint(_to, newItemId);
-        roles[_to] = _roles;
+        setRoles(_to, _roles);
         // TODO implement getTokenURI with _roles
         string memory finalTokenUri = getTokenURI(
             newItemId,
