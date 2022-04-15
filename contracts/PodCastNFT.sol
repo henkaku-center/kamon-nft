@@ -5,53 +5,62 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./ConsensusAdminable.sol";
 
 import {Base64} from "./libraries/Base64.sol";
 
-contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
+contract PodCastNFT is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    constructor(address[] memory _admin, bool givenHighestAuthority)
-        ConsensusAdminable(_admin, givenHighestAuthority)
-        ERC721("Henkaku v0.1", "henkaku")
-    {}
+    constructor() ERC721("Henkaku v0.2", "henkaku") {}
 
+    mapping(address => string[]) public roles;
     mapping(uint256 => bool) private _communityMemberShip;
 
-    function isCommunityMember(uint256 _tokenId) public view returns (bool) {
-        return _communityMemberShip[_tokenId];
+    modifier onlyHolder(address _address) {
+        require(balanceOf(_address) != 0, "wallet must have membership nft");
+        _;
     }
 
-    function isCommunityMemberByCommunityRole(string memory _roleInCommunity)
-        internal
-        pure
+    function getRoles(address _address) public view returns (string[] memory) {
+        return roles[_address];
+    }
+
+    function hasRoleOf(address _address, string memory _role)
+        public
+        view
         returns (bool)
     {
-        return bytes(_roleInCommunity).length > 2;
+        string[] memory _roles = roles[_address];
+        for (uint256 i = 0; i < _roles.length; i++) {
+            if (keccak256(bytes(_roles[i])) == keccak256(bytes(_role))) {
+                return true;
+            }
+        }
+        return false;
     }
+
+    function setRoles(address _to, string[] memory _roles) public onlyOwner onlyHolder(_to) {
+        roles[_to] = _roles;
+    }
+
+    function addRole(address _to, string memory _role) public onlyOwner onlyHolder(_to) {
+        roles[_to].push(_role);
+    }
+
+    // TODO implement updateNFT func which holder can change their name, imageURL by them self
+    function updateOwnNFT(string memory _imageURI, string memory name) public {}
 
     function updateNFT(
         uint256 tokenId,
         string memory _imageURI,
-        string memory _role,
-        string memory _roleInCommunity,
+        string[] memory _roles,
         string memory _point
-    ) public {
-        require(
-            hasRole(ADMIN_ROLE, msg.sender),
-            "You are not authorized to update nft"
-        );
-
-        _communityMemberShip[tokenId] = isCommunityMemberByCommunityRole(
-            _roleInCommunity
-        );
+    ) public onlyOwner {
         string memory finalTokenUri = getTokenURI(
             tokenId,
             _imageURI,
-            _role,
-            _roleInCommunity,
+            _roles,
             _point
         );
         _setTokenURI(tokenId, finalTokenUri);
@@ -61,7 +70,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
         public
         view
         virtual
-        override(ERC721, AccessControl)
+        override(ERC721)
         returns (bool)
     {
         return
@@ -73,42 +82,28 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
     function getTokenURI(
         uint256 _tokenId,
         string memory _imageURI,
-        string memory _role,
-        string memory _roleInCommunity,
+        string[] memory _roles,
         string memory _point
     ) internal view returns (string memory) {
         string memory _name = "Membership NFT";
-        string memory _description = "The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n"
-        "**Special thanks**\\n\\n"
-        "NFT Design:\\n\\n"
-        "Digital Garage team\\n\\n"
-        "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n"
-        "Engineering:\\n\\n"
-        "isbtty, yasek, geeknees";
+        string
+            memory _description = "The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n"
+            "**Special thanks**\\n\\n"
+            "NFT Design:\\n\\n"
+            "Digital Garage team\\n\\n"
+            "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n"
+            "Engineering:\\n\\n"
+            "isbtty, yasek, geeknees";
 
         bytes memory _attributes;
-        if (isCommunityMember(_tokenId)) {
-            _attributes = abi.encodePacked(
-                '"attributes": [{"trait_type": "Role", "value": "',
-                _role,
-                '"},',
-                '{"trait_type": "Henkaku Community member", "value": "',
-                _roleInCommunity,
-                '"},',
-                '{"display_type": "number", "trait_type": "Point", "value": "',
-                _point,
-                '"}]'
-            );
-        } else {
-            _attributes = abi.encodePacked(
-                '"attributes": [{"trait_type": "Role", "value": "',
-                _role,
-                '"},',
-                '{"display_type": "number", "trait_type": "Point", "value": "',
-                _point,
-                '"}]'
-            );
-        }
+        // TODO implement roles
+        _attributes = abi.encodePacked(
+            '"attributes": [{"trait_type": "Role", "value": "',
+            '"},',
+            '{"display_type": "number", "trait_type": "Point", "value": "',
+            _point,
+            '"}]'
+        );
 
         string memory json = Base64.encode(
             abi.encodePacked(
@@ -130,33 +125,24 @@ contract PodCastNFT is ERC721URIStorage, Ownable, ConsensusAdminable {
 
     function mint(
         string memory _imageURI,
-        string memory _role,
-        string memory _roleInCommunity,
+        string[] memory _roles,
         string memory _point,
         address _to
-    ) public returns (uint256) {
-        require(
-            hasRole(ADMIN_ROLE, msg.sender),
-            "You are not authorized to mint"
-        );
+    ) public onlyOwner returns (uint256) {
         require(balanceOf(_to) == 0, "User has had already a memebrship NFT");
 
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _safeMint(_to, newItemId);
-
-        _communityMemberShip[newItemId] = isCommunityMemberByCommunityRole(
-            _roleInCommunity
-        );
+        setRoles(_to, _roles);
+        // TODO implement getTokenURI with _roles
         string memory finalTokenUri = getTokenURI(
             newItemId,
             _imageURI,
-            _role,
-            _roleInCommunity,
+            _roles,
             _point
         );
         _setTokenURI(newItemId, finalTokenUri);
-
         return newItemId;
     }
 }
