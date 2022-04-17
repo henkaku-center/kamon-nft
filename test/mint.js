@@ -5,13 +5,18 @@ const chaiAsPromised = require('chai-as-promised')
 
 chai.use(chaiAsPromised)
 describe('PodCastNFT', function () {
-  let Contract, contract
-  let owner, alice, bob
+  let Contract, contract, HenkakuToken, henkakuToken
+  let owner, alice, bob, price
 
   beforeEach(async function () {
+    HenkakuToken = await ethers.getContractFactory('MockERC20')
+    henkakuToken = await HenkakuToken.deploy()
+    await henkakuToken.deployed()
+    price = ethers.utils.parseUnits('1000', 18);
+
     Contract = await ethers.getContractFactory('PodCastNFT')
     ;[owner, alice, bob] = await ethers.getSigners()
-    contract = await Contract.deploy()
+    contract = await Contract.deploy(henkakuToken.address)
     await contract.deployed()
   })
 
@@ -141,4 +146,80 @@ describe('PodCastNFT', function () {
       )
     ).eventually.to.rejectedWith(Error)
   })
+
+  describe('mintWithHenkaku', () => {
+    it('revert without approval', async () => {
+      await expect(
+        contract.mintWithHenkaku(
+          'https://example.com/podcast.png',
+          'joi.eth',
+          ethers.utils.parseUnits('1000', 18),
+        )
+      ).eventually.to.rejectedWith(Error)
+    })
+
+    it('revert if you have more than 1 membershipNFT', async () => {
+      await henkakuToken.transfer(alice.address, ethers.utils.parseUnits('3000', 18))
+      const balance = await henkakuToken.balanceOf(alice.address)
+      await henkakuToken.connect(alice).approve(contract.address, price);
+      const tx = await contract.connect(alice).mintWithHenkaku(
+        'https://example.com/podcast.png',
+        'joi.eth',
+        ethers.utils.parseUnits('1000', 18),
+      );
+      await tx.wait()
+      expect(await contract.balanceOf(alice.address)).to.eq(1)
+      await expect(
+        contract.connect(alice).mintWithHenkaku(
+          'https://example.com/podcast.png',
+          'joi.eth',
+          ethers.utils.parseUnits('1000', 18),
+        )
+      ).eventually.to.rejectedWith("User has had already a memebrship NFT")
+    })
+
+    it('revert if you try to buy with less price', async () => {
+      await henkakuToken.transfer(alice.address, ethers.utils.parseUnits('1400', 18))
+      const balance = await henkakuToken.balanceOf(alice.address)
+      await henkakuToken.connect(alice).approve(contract.address, price);
+      await expect(
+        contract.connect(alice).mintWithHenkaku(
+          'https://example.com/podcast.png',
+          'joi.eth',
+          ethers.utils.parseUnits('900', 18),
+        )
+      ).eventually.to.rejectedWith("Low amount. you cannot buy with such amount")
+    })
+
+    it('mint With henkaku token', async () => {
+      const balance = await henkakuToken.balanceOf(owner.address)
+      await henkakuToken.approve(contract.address, price);
+      const tx = await contract.mintWithHenkaku(
+        'https://example.com/podcast.png',
+        'joi.eth',
+        ethers.utils.parseUnits('1000', 18),
+      );
+      await tx.wait()
+      expect(await contract.balanceOf(owner.address)).to.eq(1)
+      expect(await contract.hasRoleOf(owner.address, 'MEMBER')).to.be.true
+      expect(await contract.hasRoleOf(owner.address, 'MINTER')).to.be.true
+      expect(await henkakuToken.balanceOf(owner.address)).to.be.eq(balance.sub(price))
+    })
+
+    it('mint With henkaku token by alice', async () => {
+      await henkakuToken.transfer(alice.address, ethers.utils.parseUnits('1400', 18))
+      const balance = await henkakuToken.balanceOf(alice.address)
+      await henkakuToken.connect(alice).approve(contract.address, price);
+      const tx = await contract.connect(alice).mintWithHenkaku(
+        'https://example.com/podcast.png',
+        'joi.eth',
+        ethers.utils.parseUnits('1000', 18),
+      );
+      await tx.wait()
+      expect(await contract.balanceOf(alice.address)).to.eq(1)
+      expect(await contract.hasRoleOf(alice.address, 'MEMBER')).to.be.true
+      expect(await henkakuToken.balanceOf(alice.address)).to.be.eq(balance.sub(price))
+    })
+
+  });
 })
