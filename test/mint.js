@@ -143,6 +143,26 @@ describe('PodCastNFT', function () {
     ).eventually.to.rejectedWith(Error)
   })
 
+  describe('setPrice', () => {
+    it('reverts with less amount', async () => {
+      await expect(
+        contract.setPrice(ethers.utils.parseUnits('1', 17))
+      ).eventually.to.rejectedWith('price must be higher than 1e18 wei')
+    })
+
+    it('reverts when normal user try to change', async () => {
+      await expect(
+        contract.connect(alice).setPrice(ethers.utils.parseUnits('500', 18))
+      ).eventually.to.rejectedWith(Error)
+    })
+
+    it('sets price correctly', async () => {
+      expect(await contract.price()).to.eq(ethers.utils.parseUnits('1000', 18))
+      await contract.setPrice(ethers.utils.parseUnits('500', 18))
+      expect(await contract.price()).to.eq(ethers.utils.parseUnits('500', 18))
+    })
+  })
+
   describe('mintWithHenkaku', () => {
     it('revert without approval', async () => {
       await expect(
@@ -178,7 +198,7 @@ describe('PodCastNFT', function () {
             'joi.eth',
             ethers.utils.parseUnits('1000', 18)
           )
-      ).eventually.to.rejectedWith('User has had already a memebrship NFT')
+      ).eventually.to.rejectedWith('User has already had a memebrship NFT')
     })
 
     it('revert if you try to buy with less price', async () => {
@@ -196,9 +216,7 @@ describe('PodCastNFT', function () {
             'joi.eth',
             ethers.utils.parseUnits('900', 18)
           )
-      ).eventually.to.rejectedWith(
-        'Low amount. you cannot buy with such amount'
-      )
+      ).eventually.to.rejectedWith('Not Enough Henkaku')
     })
 
     it('mint With henkaku token', async () => {

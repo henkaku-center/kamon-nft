@@ -32,7 +32,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     modifier onlyNoneHolder(address _address) {
         require(
             balanceOf(_address) == 0,
-            "User has had already a memebrship NFT"
+            "User has already had a memebrship NFT"
         );
         _;
     }
@@ -176,9 +176,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         string[] memory _roles,
         string memory _point,
         address _to
-    ) internal returns (uint256) {
-        require(balanceOf(_to) == 0, "User has had already a memebrship NFT");
-
+    ) internal onlyNoneHolder(msg.sender) returns (uint256) {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _safeMint(_to, newItemId);
@@ -201,7 +199,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     ) public onlyValidData(_imageURI, _name) onlyNoneHolder(msg.sender) {
         require(
             _amount >= price,
-            "Low amount. you cannot buy with such amount"
+            "Not Enough Henkaku"
         );
         bool success = henkakuToken.transferFrom(
             msg.sender,
