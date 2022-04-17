@@ -2,25 +2,22 @@ const hre = require("hardhat");
 
 const main = async () => {
   const [owner] = await hre.ethers.getSigners();
+  const MockERC20 = await hre.ethers.getContractFactory("MockERC20");
   const podcastNFTContract = await hre.ethers.getContractFactory("PodCastNFT");
-  const contract = await podcastNFTContract.deploy([owner.address], false);
+  const erc20 = await MockERC20.deploy();
+  await erc20.deployed()
+  console.log('erc20: ', erc20.address)
+  console.log('balance', await erc20.balanceOf(owner.address))
 
+  const contract = await podcastNFTContract.deploy(erc20.address);
   await contract.deployed();
   console.log("deployed to:", contract.address);
 
-  const tx = await contract.mint(
-    "https://dl.dropboxusercontent.com/s/ifuvt9h1spilofh/QmW2AHtZWdeE73ae73PkexAHDboisuZiyB8hGJtyXn5bCn.png",
-    "Henkaku Master",
-    "Henkaku Community Member",
-    "10000",
-    owner.address
-  );
-  await tx.wait();
-
-  const user = await contract.ownerOf(1);
-  console.log("Owner:", user);
-  const uri = await contract.tokenURI(1);
-  console.log("URI: ", uri);
+  const tx = await contract.buyWithHenkaku(100, contract.address)
+  tx.wait()
+  console.log("After:", tx);
+  console.log('balance', await erc20.balanceOf(owner.address))
+  console.log('balance', await erc20.balanceOf(contract.address))
 };
 
 main()
