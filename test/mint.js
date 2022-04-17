@@ -6,7 +6,7 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 describe('PodCastNFT', function () {
   let Contract, contract, HenkakuToken, henkakuToken
-  let owner, alice, bob, price
+  let owner, alice, bob, fundAddress, price
 
   beforeEach(async function () {
     HenkakuToken = await ethers.getContractFactory('MockERC20')
@@ -15,8 +15,8 @@ describe('PodCastNFT', function () {
     price = ethers.utils.parseUnits('1000', 18)
 
     Contract = await ethers.getContractFactory('PodCastNFT')
-    ;[owner, alice, bob] = await ethers.getSigners()
-    contract = await Contract.deploy(henkakuToken.address)
+    ;[owner, alice, bob, fundAddress] = await ethers.getSigners()
+    contract = await Contract.deploy(henkakuToken.address, fundAddress.address)
     await contract.deployed()
   })
 
@@ -262,6 +262,58 @@ describe('PodCastNFT', function () {
         balance.sub(price)
       )
       expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(
+        ethers.utils.parseUnits('1000', 18)
+      )
+    })
+  })
+  describe('setFundAddress', () => {
+    it('reverts if caller is not the owner', async () => {
+      await expect(
+        contract.connect(alice).setFundAddress(bob.address)
+      ).eventually.to.rejectedWith(Error)
+    })
+
+    it('sets fund address correctly', async () => {
+      expect(await contract.fundAddress()).to.eq(fundAddress.address)
+      await contract.setFundAddress(bob.address)
+      expect(await contract.fundAddress()).to.eq(bob.address)
+    })
+  })
+
+  describe('withdraw', () => {
+    beforeEach(async () => {
+      await henkakuToken.transfer(
+        alice.address,
+        ethers.utils.parseUnits('1400', 18)
+      )
+      const balance = await henkakuToken.balanceOf(alice.address)
+      await henkakuToken.connect(alice).approve(contract.address, price)
+      const tx = await contract
+        .connect(alice)
+        .mintWithHenkaku(
+          'https://example.com/podcast.png',
+          'joi.eth',
+          ethers.utils.parseUnits('1000', 18)
+        )
+      await tx.wait()
+    })
+
+    it('reverts if caller is not owner', async () => {
+      await expect(
+        contract.connect(alice).withdraw()
+      ).eventually.to.rejectedWith(Error)
+    })
+
+    it('withdraws all henkakus to fundaddress', async () => {
+      expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(
+        ethers.utils.parseUnits('1000', 18)
+      )
+
+      expect(await henkakuToken.balanceOf(fundAddress.address)).to.be.eq(
+        ethers.utils.parseUnits('0', 18)
+      )
+      await contract.withdraw()
+      expect(await henkakuToken.balanceOf(fundAddress.address)).to.be.eq(
         ethers.utils.parseUnits('1000', 18)
       )
     })

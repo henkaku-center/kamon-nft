@@ -13,15 +13,19 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     Counters.Counter private _tokenIds;
     IERC20 public henkakuToken;
     uint256 public price;
+    address public fundAddress;
 
     mapping(address => string[]) public roles;
     mapping(uint256 => bool) private _communityMemberShip;
 
     event BoughtMemberShipNFT(address _owner, uint256 _amount);
 
-    constructor(address _erc20) ERC721("Henkaku v0.2", "henkaku") {
+    constructor(address _erc20, address _fundAddress)
+        ERC721("Henkaku v0.2", "henkaku")
+    {
         henkakuToken = IERC20(_erc20);
         setPrice(1000e18);
+        fundAddress = _fundAddress;
     }
 
     function setPrice(uint256 _price) public onlyOwner {
@@ -197,10 +201,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         string memory _name,
         uint256 _amount
     ) public onlyValidData(_imageURI, _name) onlyNoneHolder(msg.sender) {
-        require(
-            _amount >= price,
-            "Not Enough Henkaku"
-        );
+        require(_amount >= price, "Not Enough Henkaku");
         bool success = henkakuToken.transferFrom(
             msg.sender,
             address(this),
@@ -212,5 +213,15 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         _roles[1] = "MINTER";
         _mint(_imageURI, _roles, "1000", msg.sender); // FIXME _point should be numeric type
         emit BoughtMemberShipNFT(msg.sender, _amount);
+    }
+
+    function setFundAddress(address _fundAddress) public onlyOwner {
+        fundAddress = _fundAddress;
+    }
+
+    function withdraw() public onlyOwner {
+        uint256 _amount = henkakuToken.balanceOf(address(this));
+        bool success = henkakuToken.transfer(fundAddress, _amount);
+        require(success, "Transaction Unsuccessful");
     }
 }
