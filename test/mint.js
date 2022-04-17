@@ -204,6 +204,7 @@ describe('PodCastNFT', function () {
     it('mint With henkaku token', async () => {
       const balance = await henkakuToken.balanceOf(owner.address)
       await henkakuToken.approve(contract.address, price)
+      expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(0)
       const tx = await contract.mintWithHenkaku(
         'https://example.com/podcast.png',
         'joi.eth',
@@ -216,6 +217,9 @@ describe('PodCastNFT', function () {
       expect(await henkakuToken.balanceOf(owner.address)).to.be.eq(
         balance.sub(price)
       )
+      expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(
+        ethers.utils.parseUnits('1000', 18)
+      )
     })
 
     it('mint With henkaku token by alice', async () => {
@@ -225,6 +229,7 @@ describe('PodCastNFT', function () {
       )
       const balance = await henkakuToken.balanceOf(alice.address)
       await henkakuToken.connect(alice).approve(contract.address, price)
+      expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(0)
       const tx = await contract
         .connect(alice)
         .mintWithHenkaku(
@@ -237,6 +242,9 @@ describe('PodCastNFT', function () {
       expect(await contract.hasRoleOf(alice.address, 'MEMBER')).to.be.true
       expect(await henkakuToken.balanceOf(alice.address)).to.be.eq(
         balance.sub(price)
+      )
+      expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(
+        ethers.utils.parseUnits('1000', 18)
       )
     })
   })
