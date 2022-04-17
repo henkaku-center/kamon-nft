@@ -12,7 +12,7 @@ describe('PodCastNFT', function () {
     HenkakuToken = await ethers.getContractFactory('MockERC20')
     henkakuToken = await HenkakuToken.deploy()
     await henkakuToken.deployed()
-    price = ethers.utils.parseUnits('1000', 18);
+    price = ethers.utils.parseUnits('1000', 18)
 
     Contract = await ethers.getContractFactory('PodCastNFT')
     ;[owner, alice, bob] = await ethers.getSigners()
@@ -22,9 +22,7 @@ describe('PodCastNFT', function () {
 
   describe('getRoles', () => {
     it('return empty without nft', async () => {
-      expect(
-        await contract.getRoles(alice.address)
-      ).to.eql([])
+      expect(await contract.getRoles(alice.address)).to.eql([])
     })
     it('can retrieve roles', async () => {
       const mintTx = await contract.mint(
@@ -44,9 +42,7 @@ describe('PodCastNFT', function () {
 
   describe('hasRoleOf', () => {
     it('return false without nft', async () => {
-      expect(
-        await contract.hasRoleOf(alice.address, 'MEMBER')
-      ).to.be.false
+      expect(await contract.hasRoleOf(alice.address, 'MEMBER')).to.be.false
     })
     it('returns true with member and false with admin role', async () => {
       const mintTx = await contract.mint(
@@ -153,73 +149,95 @@ describe('PodCastNFT', function () {
         contract.mintWithHenkaku(
           'https://example.com/podcast.png',
           'joi.eth',
-          ethers.utils.parseUnits('1000', 18),
+          ethers.utils.parseUnits('1000', 18)
         )
       ).eventually.to.rejectedWith(Error)
     })
 
     it('revert if you have more than 1 membershipNFT', async () => {
-      await henkakuToken.transfer(alice.address, ethers.utils.parseUnits('3000', 18))
+      await henkakuToken.transfer(
+        alice.address,
+        ethers.utils.parseUnits('3000', 18)
+      )
       const balance = await henkakuToken.balanceOf(alice.address)
-      await henkakuToken.connect(alice).approve(contract.address, price);
-      const tx = await contract.connect(alice).mintWithHenkaku(
-        'https://example.com/podcast.png',
-        'joi.eth',
-        ethers.utils.parseUnits('1000', 18),
-      );
+      await henkakuToken.connect(alice).approve(contract.address, price)
+      const tx = await contract
+        .connect(alice)
+        .mintWithHenkaku(
+          'https://example.com/podcast.png',
+          'joi.eth',
+          ethers.utils.parseUnits('1000', 18)
+        )
       await tx.wait()
       expect(await contract.balanceOf(alice.address)).to.eq(1)
       await expect(
-        contract.connect(alice).mintWithHenkaku(
-          'https://example.com/podcast.png',
-          'joi.eth',
-          ethers.utils.parseUnits('1000', 18),
-        )
-      ).eventually.to.rejectedWith("User has had already a memebrship NFT")
+        contract
+          .connect(alice)
+          .mintWithHenkaku(
+            'https://example.com/podcast.png',
+            'joi.eth',
+            ethers.utils.parseUnits('1000', 18)
+          )
+      ).eventually.to.rejectedWith('User has had already a memebrship NFT')
     })
 
     it('revert if you try to buy with less price', async () => {
-      await henkakuToken.transfer(alice.address, ethers.utils.parseUnits('1400', 18))
+      await henkakuToken.transfer(
+        alice.address,
+        ethers.utils.parseUnits('1400', 18)
+      )
       const balance = await henkakuToken.balanceOf(alice.address)
-      await henkakuToken.connect(alice).approve(contract.address, price);
+      await henkakuToken.connect(alice).approve(contract.address, price)
       await expect(
-        contract.connect(alice).mintWithHenkaku(
-          'https://example.com/podcast.png',
-          'joi.eth',
-          ethers.utils.parseUnits('900', 18),
-        )
-      ).eventually.to.rejectedWith("Low amount. you cannot buy with such amount")
+        contract
+          .connect(alice)
+          .mintWithHenkaku(
+            'https://example.com/podcast.png',
+            'joi.eth',
+            ethers.utils.parseUnits('900', 18)
+          )
+      ).eventually.to.rejectedWith(
+        'Low amount. you cannot buy with such amount'
+      )
     })
 
     it('mint With henkaku token', async () => {
       const balance = await henkakuToken.balanceOf(owner.address)
-      await henkakuToken.approve(contract.address, price);
+      await henkakuToken.approve(contract.address, price)
       const tx = await contract.mintWithHenkaku(
         'https://example.com/podcast.png',
         'joi.eth',
-        ethers.utils.parseUnits('1000', 18),
-      );
+        ethers.utils.parseUnits('1000', 18)
+      )
       await tx.wait()
       expect(await contract.balanceOf(owner.address)).to.eq(1)
       expect(await contract.hasRoleOf(owner.address, 'MEMBER')).to.be.true
       expect(await contract.hasRoleOf(owner.address, 'MINTER')).to.be.true
-      expect(await henkakuToken.balanceOf(owner.address)).to.be.eq(balance.sub(price))
+      expect(await henkakuToken.balanceOf(owner.address)).to.be.eq(
+        balance.sub(price)
+      )
     })
 
     it('mint With henkaku token by alice', async () => {
-      await henkakuToken.transfer(alice.address, ethers.utils.parseUnits('1400', 18))
+      await henkakuToken.transfer(
+        alice.address,
+        ethers.utils.parseUnits('1400', 18)
+      )
       const balance = await henkakuToken.balanceOf(alice.address)
-      await henkakuToken.connect(alice).approve(contract.address, price);
-      const tx = await contract.connect(alice).mintWithHenkaku(
-        'https://example.com/podcast.png',
-        'joi.eth',
-        ethers.utils.parseUnits('1000', 18),
-      );
+      await henkakuToken.connect(alice).approve(contract.address, price)
+      const tx = await contract
+        .connect(alice)
+        .mintWithHenkaku(
+          'https://example.com/podcast.png',
+          'joi.eth',
+          ethers.utils.parseUnits('1000', 18)
+        )
       await tx.wait()
       expect(await contract.balanceOf(alice.address)).to.eq(1)
       expect(await contract.hasRoleOf(alice.address, 'MEMBER')).to.be.true
-      expect(await henkakuToken.balanceOf(alice.address)).to.be.eq(balance.sub(price))
+      expect(await henkakuToken.balanceOf(alice.address)).to.be.eq(
+        balance.sub(price)
+      )
     })
-
-  });
+  })
 })

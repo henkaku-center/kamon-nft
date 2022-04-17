@@ -17,10 +17,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     mapping(address => string[]) public roles;
     mapping(uint256 => bool) private _communityMemberShip;
 
-    event BoughtMemberShipNFT (
-        address _owner,
-        uint256 _amount
-    );
+    event BoughtMemberShipNFT(address _owner, uint256 _amount);
 
     constructor(address _erc20) ERC721("Henkaku v0.2", "henkaku") {
         henkakuToken = IERC20(_erc20);
@@ -32,9 +29,11 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         price = _price;
     }
 
-
     modifier onlyNoneHolder(address _address) {
-        require(balanceOf(_address) == 0, "User has had already a memebrship NFT");
+        require(
+            balanceOf(_address) == 0,
+            "User has had already a memebrship NFT"
+        );
         _;
     }
 
@@ -45,8 +44,11 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
 
     modifier onlyValidData(string memory _imageURI, string memory _name) {
         // TODO check _imageURL is really valid or not. we might check file extension for example
-        require(bytes(_imageURI).length > 0, 'Invalid imageURI: Re Enter image url again');
-        require(bytes(_name).length > 0, 'Invalid name: name cannot be blank');
+        require(
+            bytes(_imageURI).length > 0,
+            "Invalid imageURI: Re Enter image url again"
+        );
+        require(bytes(_name).length > 0, "Invalid name: name cannot be blank");
         _;
     }
 
@@ -68,11 +70,19 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         return false;
     }
 
-    function setRoles(address _to, string[] memory _roles) public onlyOwner onlyHolder(_to) {
+    function setRoles(address _to, string[] memory _roles)
+        public
+        onlyOwner
+        onlyHolder(_to)
+    {
         roles[_to] = _roles;
     }
 
-    function addRole(address _to, string memory _role) public onlyOwner onlyHolder(_to) {
+    function addRole(address _to, string memory _role)
+        public
+        onlyOwner
+        onlyHolder(_to)
+    {
         roles[_to].push(_role);
     }
 
@@ -184,15 +194,25 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         return newItemId;
     }
 
-    function mintWithHenkaku(string memory _imageURI, string memory _name, uint256 _amount) public onlyValidData(_imageURI, _name) onlyNoneHolder(msg.sender) {
-        require(_amount >= price, 'Low amount. you cannot buy with such amount');
-        bool success = henkakuToken.transferFrom(msg.sender, address(this), _amount);
+    function mintWithHenkaku(
+        string memory _imageURI,
+        string memory _name,
+        uint256 _amount
+    ) public onlyValidData(_imageURI, _name) onlyNoneHolder(msg.sender) {
+        require(
+            _amount >= price,
+            "Low amount. you cannot buy with such amount"
+        );
+        bool success = henkakuToken.transferFrom(
+            msg.sender,
+            address(this),
+            _amount
+        );
         require(success, "Token transfer failed");
         string[] memory _roles = new string[](2);
         _roles[0] = "MEMBER";
         _roles[1] = "MINTER";
-        _mint(_imageURI, _roles, '1000', msg.sender); // FIXME _point should be numeric type
+        _mint(_imageURI, _roles, "1000", msg.sender); // FIXME _point should be numeric type
         emit BoughtMemberShipNFT(msg.sender, _amount);
     }
-
 }
