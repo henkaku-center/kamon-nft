@@ -25,7 +25,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     {
         henkakuToken = IERC20(_erc20);
         setPrice(1000e18);
-        fundAddress = _fundAddress;
+        setFundAddress(_fundAddress);
     }
 
     function setPrice(uint256 _price) public onlyOwner {
