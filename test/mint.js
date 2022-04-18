@@ -141,4 +141,41 @@ describe('PodCastNFT', function () {
       )
     ).eventually.to.rejectedWith(Error)
   })
+
+  describe('burn', () => {
+    it('can burn for admin', async () => {
+      const mintTx = await contract.mint(
+          'https://example.com/podcast.png',
+          ['Podcast Contributor'],
+          '10000',
+          owner.address
+      )
+      await mintTx.wait()
+
+      const transferTx = await contract['safeTransferFrom(address,address,uint256)'](
+          owner.address,
+          alice.address,
+          1
+      )
+      await transferTx.wait()
+
+      const burnTx = await contract.burn(1)
+      await burnTx.wait()
+
+      await expect(contract.ownerOf(1)).to.be.revertedWith( 'ERC721: owner query for nonexistent token')
+    })
+    it('cannot burn owned nft', async () => {
+      const mintTx = await contract.mint(
+          'https://example.com/podcast.png',
+          ['Podcast Contributor'],
+          '10000',
+          owner.address
+      )
+      await mintTx.wait()
+
+      await expect(
+          contract.burn(1)
+      ).to.be.revertedWith('membership nft is still owned by member')
+    })
+  })
 })

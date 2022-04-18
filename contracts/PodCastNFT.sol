@@ -129,7 +129,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         string memory _point,
         address _to
     ) public onlyOwner returns (uint256) {
-        require(balanceOf(_to) == 0, "User has had already a memebrship NFT");
+        require(balanceOf(_to) == 0, "User has had already a membership NFT");
 
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
@@ -144,5 +144,12 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         );
         _setTokenURI(newItemId, finalTokenUri);
         return newItemId;
+    }
+
+    function burn(
+        uint256 _tokenId
+    ) public onlyOwner {
+        require(getRoles(ownerOf(_tokenId)).length == 0, "membership nft is still owned by member");
+        _burn(_tokenId);
     }
 }
