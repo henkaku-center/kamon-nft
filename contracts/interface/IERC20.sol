@@ -7,4 +7,8 @@ interface IERC20 {
         address _to,
         uint256 _value
     ) external returns (bool success);
+
+    function balanceOf(address account) external view returns (uint256);
+
+    function transfer(address to, uint256 amount) external returns (bool);
 }
