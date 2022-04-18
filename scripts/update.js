@@ -8,7 +8,7 @@ const main = async () => {
   await contract.deployed();
   console.log("deployed to:", contract.address);
 
-  const tx1 = await contract.mintAndTransfer(
+  const tx1 = await contract.mint(
     "https://dl.dropboxusercontent.com/s/ifuvt9h1spilofh/QmW2AHtZWdeE73ae73PkexAHDboisuZiyB8hGJtyXn5bCn.png",
     "Henkaku Master",
     "",
