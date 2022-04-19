@@ -318,4 +318,21 @@ describe('PodCastNFT', function () {
       )
     })
   })
+
+  describe('burn', () => {
+    it('can burn for admin', async () => {
+      const mintTx = await contract.mint(
+          'https://example.com/podcast.png',
+          ['Podcast Contributor'],
+          '10000',
+          owner.address
+      )
+      await mintTx.wait()
+
+      const burnTx = await contract.burn(1)
+      await burnTx.wait()
+
+      await expect(contract.ownerOf(1)).to.be.revertedWith( 'ERC721: owner query for nonexistent token')
+    })
+  })
 })

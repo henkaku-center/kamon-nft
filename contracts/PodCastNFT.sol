@@ -171,7 +171,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         string memory _point,
         address _to
     ) public onlyOwner returns (uint256) {
-        require(balanceOf(_to) == 0, "User has had already a memebrship NFT");
+        require(balanceOf(_to) == 0, "User has had already a membership NFT");
         return _mint(_imageURI, _roles, _point, _to);
     }
 
@@ -223,5 +223,11 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         uint256 _amount = henkakuToken.balanceOf(address(this));
         bool success = henkakuToken.transfer(fundAddress, _amount);
         require(success, "Transaction Unsuccessful");
+    }
+
+    function burn(
+        uint256 _tokenId
+    ) public onlyOwner {
+        _burn(_tokenId);
     }
 }
