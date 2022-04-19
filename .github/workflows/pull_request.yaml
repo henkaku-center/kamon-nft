@@ -1,0 +1,24 @@
+name: Check the source code
+on:
+  pull_request:
+jobs:
+  test:
+    name: Check the source code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install Yarn
+        run: npm install -g yarn
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: yarn
+      - name: Install packages
+        run: yarn
+      - name: Lint
+        run: yarn lint
+      - name: Test
+        run: yarn test
