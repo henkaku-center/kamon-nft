@@ -128,14 +128,13 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         string memory _point
     ) internal view returns (string memory) {
         string memory _name = "Membership NFT";
-        string
-            memory _description = "The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n"
-            "**Special thanks**\\n\\n"
-            "NFT Design:\\n\\n"
-            "Digital Garage team\\n\\n"
-            "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n"
-            "Engineering:\\n\\n"
-            "isbtty, yasek, geeknees";
+        string memory _description = "The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n"
+        "**Special thanks**\\n\\n"
+        "NFT Design:\\n\\n"
+        "Digital Garage team\\n\\n"
+        "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n"
+        "Engineering:\\n\\n"
+        "isbtty, yasek, geeknees";
 
         bytes memory _attributes;
         // TODO implement roles
