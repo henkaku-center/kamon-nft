@@ -228,7 +228,6 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     function burn(
         uint256 _tokenId
     ) public onlyOwner {
-        require(getRoles(ownerOf(_tokenId)).length == 0, "membership nft is still owned by member");
         _burn(_tokenId);
     }
 }
