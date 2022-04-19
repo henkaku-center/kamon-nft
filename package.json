@@ -4,7 +4,8 @@
     "deploy-local": "npx hardhat run scripts/deploy.js --network localhost",
     "deploy-rinkeby": "npx hardhat run scripts/deploy.js --network rinkeby",
     "verify-rinkeby": "npx hardhat verify --constructor-args arguments.js --network rinkeby",
-    "test": "yarn run hardhat test"
+    "test": "yarn run hardhat test",
+    "lint:sol": "yarn solhint --fix --max-warnings 0 \"contracts/**/*.sol\""
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
@@ -17,7 +18,9 @@
     "ethers": "^5.5.4",
     "hardhat": "^2.8.3",
     "prettier": "^2.5.1",
-    "prettier-plugin-solidity": "^1.0.0-beta.19"
+    "prettier-plugin-solidity": "^1.0.0-beta.19",
+    "solhint": "^3.3.7",
+    "solhint-plugin-prettier": "^0.0.5"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.5.0"
