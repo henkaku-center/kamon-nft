@@ -14,10 +14,22 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     IERC20 public henkakuToken;
     uint256 public price;
     address public fundAddress;
+    bytes32 private keyword;
 
-    mapping(address => string[]) public roles;
-    mapping(uint256 => bool) private _communityMemberShip;
+    struct PodcastKeyword {
+        uint256 startedAt;
+        bytes32 keyword;
+    }
 
+    struct Attributes {
+        uint256 point;
+        uint256 claimableToken;
+        uint256 answeredAt;
+    }
+
+    PodcastKeyword private weeklyKeyword;
+    mapping(address => string[]) private roles;
+    mapping(address => Attributes) private userAttribute;
     event BoughtMemberShipNFT(address _owner, uint256 _amount);
 
     constructor(address _erc20, address _fundAddress)
@@ -127,42 +139,8 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         string[] memory _roles,
         string memory _point
     ) internal view returns (string memory) {
-        string memory _name = "Membership NFT";
-        string
-            memory _description = "The membership card of this Henkaku community represents the contribution of the podcast.\\n\\n"
-            "**Special thanks**\\n\\n"
-            "NFT Design:\\n\\n"
-            "Digital Garage team\\n\\n"
-            "Yukinori Hidaka, Saoti Yamaguchi, Masaaki Tsuji, Yuki Sakai, Yuko Hidaka, Masako Inoue, Nanami Nishio, Ruca Takei, Ryu Hayashi.\\n\\n"
-            "Engineering:\\n\\n"
-            "isbtty, yasek, geeknees";
-
-        bytes memory _attributes;
-        // TODO implement roles
-        _attributes = abi.encodePacked(
-            '"attributes": [{"trait_type": "Role", "value": "',
-            '"},',
-            '{"display_type": "number", "trait_type": "Point", "value": "',
-            _point,
-            '"}]'
-        );
-
-        string memory json = Base64.encode(
-            abi.encodePacked(
-                '{"name": "',
-                _name,
-                '",'
-                '"description": "',
-                _description,
-                '",'
-                '"image": "',
-                _imageURI,
-                '",',
-                string(_attributes),
-                "}"
-            )
-        );
-        return string(abi.encodePacked("data:application/json;base64,", json));
+        // TODO
+        return "";
     }
 
     function mint(
@@ -229,5 +207,50 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         uint256 _tokenId
     ) public onlyOwner {
         _burn(_tokenId);
+    }
+    function setKeyword(
+        string memory _keyword,
+        uint256 startedAt
+    ) public onlyOwner {
+        weeklyKeyword = PodcastKeyword(
+           startedAt,
+           keccak256(abi.encodePacked(_keyword))
+        );
+    }
+
+    function getUserAttributes(address _of) public view returns (Attributes memory) {
+        return userAttribute[_of];
+    }
+
+    function checkAnswer(string memory _keyword) public onlyHolder(msg.sender) returns (bool) {
+        bool isCorrect = weeklyKeyword.keyword == keccak256(abi.encodePacked(_keyword));
+        if (!isCorrect) {
+            return false;
+        }
+        require(
+            userAttribute[msg.sender].answeredAt <= weeklyKeyword.startedAt,
+            "You cannot answer twice"
+        );
+        userAttribute[msg.sender].point += 100;
+        userAttribute[msg.sender].claimableToken += 100e18;
+        userAttribute[msg.sender].answeredAt = block.timestamp;
+        return true;
+    }
+
+    function claimToken() public onlyHolder(msg.sender) {
+        require(
+            userAttribute[msg.sender].claimableToken > 0,
+            "You don't have claimable token amount"
+        );
+        require(
+            henkakuToken.balanceOf(address(this)) >= userAttribute[msg.sender].claimableToken,
+            "We don't have enough fund now"
+        );
+        bool success = henkakuToken.transfer(
+            msg.sender,
+            userAttribute[msg.sender].claimableToken
+        );
+        require(success, "Transaction faild");
+        userAttribute[msg.sender].claimableToken = 0;
     }
 }
