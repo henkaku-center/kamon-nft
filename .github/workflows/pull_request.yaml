@@ -10,6 +10,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
+      # unable to use yarn in actions/setup-node@v3 https://github.com/actions/setup-node/issues/182#issuecomment-966885975
       - name: Install Yarn
         run: npm install -g yarn
       - uses: actions/setup-node@v3
