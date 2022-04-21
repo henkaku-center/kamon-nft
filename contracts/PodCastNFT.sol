@@ -203,27 +203,35 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         require(success, "Transaction Unsuccessful");
     }
 
-    function burn(
-        uint256 _tokenId
-    ) public onlyOwner {
+    function burn(uint256 _tokenId) public onlyOwner {
         _burn(_tokenId);
     }
-    function setKeyword(
-        string memory _keyword,
-        uint256 startedAt
-    ) public onlyOwner {
+
+    function setKeyword(string memory _keyword, uint256 startedAt)
+        public
+        onlyOwner
+    {
         weeklyKeyword = PodcastKeyword(
-           startedAt,
-           keccak256(abi.encodePacked(_keyword))
+            startedAt,
+            keccak256(abi.encodePacked(_keyword))
         );
     }
 
-    function getUserAttributes(address _of) public view returns (Attributes memory) {
+    function getUserAttributes(address _of)
+        public
+        view
+        returns (Attributes memory)
+    {
         return userAttribute[_of];
     }
 
-    function checkAnswer(string memory _keyword) public onlyHolder(msg.sender) returns (bool) {
-        bool isCorrect = weeklyKeyword.keyword == keccak256(abi.encodePacked(_keyword));
+    function checkAnswer(string memory _keyword)
+        public
+        onlyHolder(msg.sender)
+        returns (bool)
+    {
+        bool isCorrect = weeklyKeyword.keyword ==
+            keccak256(abi.encodePacked(_keyword));
         if (!isCorrect) {
             return false;
         }
@@ -243,7 +251,8 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
             "You don't have claimable token amount"
         );
         require(
-            henkakuToken.balanceOf(address(this)) >= userAttribute[msg.sender].claimableToken,
+            henkakuToken.balanceOf(address(this)) >=
+                userAttribute[msg.sender].claimableToken,
             "We don't have enough fund now"
         );
         bool success = henkakuToken.transfer(

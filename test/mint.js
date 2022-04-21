@@ -322,19 +322,22 @@ describe('PodCastNFT', function () {
   describe('burn', () => {
     it('can burn for admin', async () => {
       const mintTx = await contract.mint(
-          'https://example.com/podcast.png',
-          ['Podcast Contributor'],
-          '10000',
-          owner.address
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        '10000',
+        owner.address
       )
       await mintTx.wait()
 
       const burnTx = await contract.burn(1)
       await burnTx.wait()
 
-      await expect(contract.ownerOf(1)).to.be.revertedWith( 'ERC721: owner query for nonexistent token')
+      await expect(contract.ownerOf(1)).to.be.revertedWith(
+        'ERC721: owner query for nonexistent token'
+      )
     })
   })
+
   describe('checkAnswer', () => {
     beforeEach(async () => {
       await henkakuToken.transfer(
@@ -362,7 +365,7 @@ describe('PodCastNFT', function () {
       expect((await contract.getUserAttributes(alice.address)).point).to.eq(100)
       expect(
         (await contract.getUserAttributes(alice.address)).claimableToken
-      ).to.eq(100)
+      ).to.eq(ethers.utils.parseUnits('100', 18))
     })
 
     it('revert if user tries to answer twice', async () => {
