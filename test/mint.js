@@ -197,7 +197,7 @@ describe('PodCastNFT', function () {
             'joi.eth',
             ethers.utils.parseUnits('1000', 18)
           )
-      ).eventually.to.rejectedWith('User has already had a memebrship NFT')
+      ).eventually.to.rejectedWith('Address Holds NFT')
     })
 
     it('revert if you try to buy with less price', async () => {
