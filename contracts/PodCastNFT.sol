@@ -31,6 +31,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     mapping(address => string[]) private roles;
     mapping(address => Attributes) private userAttribute;
     event BoughtMemberShipNFT(address _owner, uint256 _amount);
+    event CheckedAnswer(address _by, uint256 _at);
 
     constructor(address _erc20, address _fundAddress)
         ERC721("Henkaku v0.2", "henkaku")
@@ -228,13 +229,13 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     function checkAnswer(string memory _keyword)
         public
         onlyHolder(msg.sender)
-        returns (bool)
     {
         bool isCorrect = weeklyKeyword.keyword ==
             keccak256(abi.encodePacked(_keyword));
-        if (!isCorrect) {
-            return false;
-        }
+        require(
+            isCorrect,
+            "Incorrect Answer"
+        );
         require(
             userAttribute[msg.sender].answeredAt <= weeklyKeyword.startedAt,
             "You cannot answer twice"
@@ -242,7 +243,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         userAttribute[msg.sender].point += 100;
         userAttribute[msg.sender].claimableToken += 100e18;
         userAttribute[msg.sender].answeredAt = block.timestamp;
-        return true;
+        emit CheckedAnswer(msg.sender, userAttribute[msg.sender].answeredAt);
     }
 
     function claimToken() public onlyHolder(msg.sender) {

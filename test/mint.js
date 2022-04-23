@@ -361,7 +361,8 @@ describe('PodCastNFT', function () {
       expect(
         (await contract.getUserAttributes(alice.address)).claimableToken
       ).to.eq(0)
-      const correct = await contract.connect(alice).checkAnswer('foobar')
+      const tx = await contract.connect(alice).checkAnswer('foobar')
+      await expect(tx).to.emit(contract, 'CheckedAnswer')
       expect((await contract.getUserAttributes(alice.address)).point).to.eq(100)
       expect(
         (await contract.getUserAttributes(alice.address)).claimableToken
@@ -370,7 +371,8 @@ describe('PodCastNFT', function () {
 
     it('revert if user tries to answer twice', async () => {
       expect((await contract.getUserAttributes(alice.address)).point).to.eq(0)
-      const correct = await contract.connect(alice).checkAnswer('foobar')
+      const tx = await contract.connect(alice).checkAnswer('foobar')
+      await expect(tx).to.emit(contract, 'CheckedAnswer')
       expect((await contract.getUserAttributes(alice.address)).point).to.eq(100)
       await expect(
         contract.connect(alice).checkAnswer('foobar')
