@@ -47,10 +47,7 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
     }
 
     modifier onlyNoneHolder(address _address) {
-        require(
-            balanceOf(_address) == 0,
-            "User has already had a memebrship NFT"
-        );
+        require(balanceOf(_address) == 0, "Address Holds NFT");
         _;
     }
 
@@ -226,16 +223,10 @@ contract PodCastNFT is ERC721URIStorage, Ownable {
         return userAttribute[_of];
     }
 
-    function checkAnswer(string memory _keyword)
-        public
-        onlyHolder(msg.sender)
-    {
+    function checkAnswer(string memory _keyword) public onlyHolder(msg.sender) {
         bool isCorrect = weeklyKeyword.keyword ==
             keccak256(abi.encodePacked(_keyword));
-        require(
-            isCorrect,
-            "Incorrect Answer"
-        );
+        require(isCorrect, "Incorrect Answer");
         require(
             userAttribute[msg.sender].answeredAt <= weeklyKeyword.startedAt,
             "You cannot answer twice"
