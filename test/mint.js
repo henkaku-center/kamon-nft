@@ -35,7 +35,7 @@ describe('PodCastNFT', function () {
       expect(await contract.ownerOf(1)).to.be.equal(alice.address)
       expect(await contract.getRoles(alice.address)).to.have.same.members([
         'Podcast Contributor',
-        'MEMBER',
+        'MEMBER'
       ])
     })
   })
@@ -108,7 +108,7 @@ describe('PodCastNFT', function () {
       await contract.setRoles(alice.address, ['MEMBER', 'ADMIN'])
       expect(await contract.getRoles(alice.address)).to.have.same.members([
         'MEMBER',
-        'ADMIN',
+        'ADMIN'
       ])
     })
   })
@@ -179,7 +179,6 @@ describe('PodCastNFT', function () {
         alice.address,
         ethers.utils.parseUnits('3000', 18)
       )
-      const balance = await henkakuToken.balanceOf(alice.address)
       await henkakuToken.connect(alice).approve(contract.address, price)
       const tx = await contract
         .connect(alice)
@@ -198,7 +197,7 @@ describe('PodCastNFT', function () {
             'joi.eth',
             ethers.utils.parseUnits('1000', 18)
           )
-      ).eventually.to.rejectedWith('User has already had a memebrship NFT')
+      ).eventually.to.rejectedWith('Address Holds NFT')
     })
 
     it('revert if you try to buy with less price', async () => {
@@ -206,7 +205,6 @@ describe('PodCastNFT', function () {
         alice.address,
         ethers.utils.parseUnits('1400', 18)
       )
-      const balance = await henkakuToken.balanceOf(alice.address)
       await henkakuToken.connect(alice).approve(contract.address, price)
       await expect(
         contract
@@ -286,7 +284,6 @@ describe('PodCastNFT', function () {
         alice.address,
         ethers.utils.parseUnits('1400', 18)
       )
-      const balance = await henkakuToken.balanceOf(alice.address)
       await henkakuToken.connect(alice).approve(contract.address, price)
       const tx = await contract
         .connect(alice)
@@ -322,17 +319,105 @@ describe('PodCastNFT', function () {
   describe('burn', () => {
     it('can burn for admin', async () => {
       const mintTx = await contract.mint(
-          'https://example.com/podcast.png',
-          ['Podcast Contributor'],
-          '10000',
-          owner.address
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        '10000',
+        owner.address
       )
       await mintTx.wait()
 
       const burnTx = await contract.burn(1)
       await burnTx.wait()
 
-      await expect(contract.ownerOf(1)).to.be.revertedWith( 'ERC721: owner query for nonexistent token')
+      await expect(contract.ownerOf(1)).to.be.revertedWith(
+        'ERC721: owner query for nonexistent token'
+      )
+    })
+  })
+
+  describe('checkAnswer', () => {
+    beforeEach(async () => {
+      await henkakuToken.transfer(
+        alice.address,
+        ethers.utils.parseUnits('1400', 18)
+      )
+      await henkakuToken.connect(alice).approve(contract.address, price)
+      const tx = await contract
+        .connect(alice)
+        .mintWithHenkaku(
+          'https://example.com/podcast.png',
+          'joi.eth',
+          ethers.utils.parseUnits('1000', 18)
+        )
+      await tx.wait()
+      await contract.setKeyword('foobar', parseInt(Date.now() / 1000))
+    })
+    it('answer was correct and updated point', async () => {
+      expect((await contract.getUserAttributes(alice.address)).point).to.eq(0)
+      expect(
+        (await contract.getUserAttributes(alice.address)).claimableToken
+      ).to.eq(0)
+      const tx = await contract.connect(alice).checkAnswer('foobar')
+      await expect(tx).to.emit(contract, 'CheckedAnswer')
+      expect((await contract.getUserAttributes(alice.address)).point).to.eq(100)
+      expect(
+        (await contract.getUserAttributes(alice.address)).claimableToken
+      ).to.eq(ethers.utils.parseUnits('100', 18))
+    })
+
+    it('revert if user tries to answer twice', async () => {
+      expect((await contract.getUserAttributes(alice.address)).point).to.eq(0)
+      const tx = await contract.connect(alice).checkAnswer('foobar')
+      await expect(tx).to.emit(contract, 'CheckedAnswer')
+      expect((await contract.getUserAttributes(alice.address)).point).to.eq(100)
+      await expect(
+        contract.connect(alice).checkAnswer('foobar')
+      ).eventually.to.rejectedWith('You cannot answer twice')
+    })
+  })
+
+  describe('claimToken', () => {
+    beforeEach(async () => {
+      await henkakuToken.transfer(
+        alice.address,
+        ethers.utils.parseUnits('1400', 18)
+      )
+      await henkakuToken.connect(alice).approve(contract.address, price)
+      const tx = await contract
+        .connect(alice)
+        .mintWithHenkaku(
+          'https://example.com/podcast.png',
+          'joi.eth',
+          ethers.utils.parseUnits('1000', 18)
+        )
+      await tx.wait()
+      await contract.setKeyword('foobar', parseInt(Date.now() / 1000))
+      await contract.connect(alice).checkAnswer('foobar')
+    })
+    it('claim token successfully', async () => {
+      expect(await henkakuToken.balanceOf(alice.address)).to.eq(
+        ethers.utils.parseUnits('400', 18)
+      )
+      await contract.connect(alice).claimToken()
+      expect(
+        (await contract.getUserAttributes(alice.address)).claimableToken
+      ).to.eq(0)
+      expect(await henkakuToken.balanceOf(alice.address)).to.eq(
+        ethers.utils.parseUnits('500', 18)
+      )
+    })
+
+    it('reverts if user doesn not have claimable toke', async () => {
+      expect(await henkakuToken.balanceOf(alice.address)).to.eq(
+        ethers.utils.parseUnits('400', 18)
+      )
+      await contract.connect(alice).claimToken()
+      expect(
+        (await contract.getUserAttributes(alice.address)).claimableToken
+      ).to.eq(0)
+      await expect(
+        contract.connect(alice).claimToken()
+      ).eventually.to.rejectedWith("You don't have claimable token amount")
     })
   })
 })
