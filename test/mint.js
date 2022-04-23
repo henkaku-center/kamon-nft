@@ -35,7 +35,7 @@ describe('PodCastNFT', function () {
       expect(await contract.ownerOf(1)).to.be.equal(alice.address)
       expect(await contract.getRoles(alice.address)).to.have.same.members([
         'Podcast Contributor',
-        'MEMBER',
+        'MEMBER'
       ])
     })
   })
@@ -108,7 +108,7 @@ describe('PodCastNFT', function () {
       await contract.setRoles(alice.address, ['MEMBER', 'ADMIN'])
       expect(await contract.getRoles(alice.address)).to.have.same.members([
         'MEMBER',
-        'ADMIN',
+        'ADMIN'
       ])
     })
   })
@@ -179,7 +179,6 @@ describe('PodCastNFT', function () {
         alice.address,
         ethers.utils.parseUnits('3000', 18)
       )
-      const balance = await henkakuToken.balanceOf(alice.address)
       await henkakuToken.connect(alice).approve(contract.address, price)
       const tx = await contract
         .connect(alice)
@@ -206,7 +205,6 @@ describe('PodCastNFT', function () {
         alice.address,
         ethers.utils.parseUnits('1400', 18)
       )
-      const balance = await henkakuToken.balanceOf(alice.address)
       await henkakuToken.connect(alice).approve(contract.address, price)
       await expect(
         contract
@@ -286,7 +284,6 @@ describe('PodCastNFT', function () {
         alice.address,
         ethers.utils.parseUnits('1400', 18)
       )
-      const balance = await henkakuToken.balanceOf(alice.address)
       await henkakuToken.connect(alice).approve(contract.address, price)
       const tx = await contract
         .connect(alice)
@@ -344,7 +341,6 @@ describe('PodCastNFT', function () {
         alice.address,
         ethers.utils.parseUnits('1400', 18)
       )
-      const balance = await henkakuToken.balanceOf(alice.address)
       await henkakuToken.connect(alice).approve(contract.address, price)
       const tx = await contract
         .connect(alice)
@@ -386,7 +382,6 @@ describe('PodCastNFT', function () {
         alice.address,
         ethers.utils.parseUnits('1400', 18)
       )
-      const balance = await henkakuToken.balanceOf(alice.address)
       await henkakuToken.connect(alice).approve(contract.address, price)
       const tx = await contract
         .connect(alice)
@@ -397,13 +392,13 @@ describe('PodCastNFT', function () {
         )
       await tx.wait()
       await contract.setKeyword('foobar', parseInt(Date.now() / 1000))
-      const correct = await contract.connect(alice).checkAnswer('foobar')
+      await contract.connect(alice).checkAnswer('foobar')
     })
     it('claim token successfully', async () => {
       expect(await henkakuToken.balanceOf(alice.address)).to.eq(
         ethers.utils.parseUnits('400', 18)
       )
-      const correct = await contract.connect(alice).claimToken()
+      await contract.connect(alice).claimToken()
       expect(
         (await contract.getUserAttributes(alice.address)).claimableToken
       ).to.eq(0)
@@ -416,7 +411,7 @@ describe('PodCastNFT', function () {
       expect(await henkakuToken.balanceOf(alice.address)).to.eq(
         ethers.utils.parseUnits('400', 18)
       )
-      const correct = await contract.connect(alice).claimToken()
+      await contract.connect(alice).claimToken()
       expect(
         (await contract.getUserAttributes(alice.address)).claimableToken
       ).to.eq(0)
