@@ -236,6 +236,7 @@ describe('PodCastNFT', function () {
       expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(
         ethers.utils.parseUnits('1000', 18)
       )
+      expect(await contract.totalSupply()).to.eq(1)
     })
 
     it('mint With henkaku token by alice', async () => {
@@ -262,6 +263,7 @@ describe('PodCastNFT', function () {
       expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(
         ethers.utils.parseUnits('1000', 18)
       )
+      expect(await contract.totalSupply()).to.eq(1)
     })
   })
   describe('setFundAddress', () => {
