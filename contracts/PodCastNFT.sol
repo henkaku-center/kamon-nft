@@ -105,7 +105,7 @@ contract PodCastNFT is ERC721, ERC721Enumerable, Ownable {
         _;
     }
 
-    // function
+    // internal function
 
     function _setTokenURI(uint256 tokenId, string memory _tokenURI)
         internal
@@ -113,63 +113,6 @@ contract PodCastNFT is ERC721, ERC721Enumerable, Ownable {
         hasTokenId(tokenId)
     {
         _tokenURIs[tokenId] = _tokenURI;
-    }
-
-    function setPrice(uint256 _price) public onlyOwner {
-        require(_price >= 1e18, "price must be higher than 1e18 wei");
-        price = _price;
-    }
-
-    function getRoles(address _address) public view returns (string[] memory) {
-        return roles[_address];
-    }
-
-    function hasRoleOf(address _address, string memory _role)
-        public
-        view
-        returns (bool)
-    {
-        string[] memory _roles = roles[_address];
-        for (uint256 i = 0; i < _roles.length; i++) {
-            if (keccak256(bytes(_roles[i])) == keccak256(bytes(_role))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function setRoles(address _to, string[] memory _roles)
-        public
-        onlyOwner
-        onlyHolder(_to)
-    {
-        roles[_to] = _roles;
-    }
-
-    function addRole(address _to, string memory _role)
-        public
-        onlyOwner
-        onlyHolder(_to)
-    {
-        roles[_to].push(_role);
-    }
-
-    // TODO implement updateNFT func which holder can change their name, imageURL by them self
-    function updateOwnNFT(string memory _imageURI, string memory name) public {}
-
-    function updateNFT(
-        uint256 tokenId,
-        string memory _imageURI,
-        string[] memory _roles,
-        string memory _point
-    ) public onlyOwner {
-        string memory finalTokenUri = getTokenURI(
-            tokenId,
-            _imageURI,
-            _roles,
-            _point
-        );
-        _setTokenURI(tokenId, finalTokenUri);
     }
 
     function getTokenURI(
@@ -180,16 +123,6 @@ contract PodCastNFT is ERC721, ERC721Enumerable, Ownable {
     ) internal view returns (string memory) {
         // TODO
         return "";
-    }
-
-    function mint(
-        string memory _imageURI,
-        string[] memory _roles,
-        string memory _point,
-        address _to
-    ) public onlyOwner returns (uint256) {
-        require(balanceOf(_to) == 0, "User has had already a membership NFT");
-        return _mint(_imageURI, _roles, _point, _to);
     }
 
     function _mint(
@@ -213,23 +146,52 @@ contract PodCastNFT is ERC721, ERC721Enumerable, Ownable {
         return newItemId;
     }
 
-    function mintWithHenkaku(
+    // admin function
+
+    function setPrice(uint256 _price) public onlyOwner {
+        require(_price >= 1e18, "price must be higher than 1e18 wei");
+        price = _price;
+    }
+
+    function setRoles(address _to, string[] memory _roles)
+        public
+        onlyOwner
+        onlyHolder(_to)
+    {
+        roles[_to] = _roles;
+    }
+
+    function addRole(address _to, string memory _role)
+        public
+        onlyOwner
+        onlyHolder(_to)
+    {
+        roles[_to].push(_role);
+    }
+
+    function updateNFT(
+        uint256 tokenId,
         string memory _imageURI,
-        string memory _name,
-        uint256 _amount
-    ) public onlyValidData(_imageURI, _name) onlyNoneHolder(msg.sender) {
-        require(_amount >= price, "Not Enough Henkaku");
-        bool success = henkakuToken.transferFrom(
-            msg.sender,
-            address(this),
-            _amount
+        string[] memory _roles,
+        string memory _point
+    ) public onlyOwner {
+        string memory finalTokenUri = getTokenURI(
+            tokenId,
+            _imageURI,
+            _roles,
+            _point
         );
-        require(success, "Token transfer failed");
-        string[] memory _roles = new string[](2);
-        _roles[0] = "MEMBER";
-        _roles[1] = "MINTER";
-        _mint(_imageURI, _roles, "1000", msg.sender); // FIXME _point should be numeric type
-        emit BoughtMemberShipNFT(msg.sender, _amount);
+        _setTokenURI(tokenId, finalTokenUri);
+    }
+
+    function mint(
+        string memory _imageURI,
+        string[] memory _roles,
+        string memory _point,
+        address _to
+    ) public onlyOwner returns (uint256) {
+        require(balanceOf(_to) == 0, "User has had already a membership NFT");
+        return _mint(_imageURI, _roles, _point, _to);
     }
 
     function setFundAddress(address _fundAddress) public onlyOwner {
@@ -254,6 +216,48 @@ contract PodCastNFT is ERC721, ERC721Enumerable, Ownable {
             startedAt,
             keccak256(abi.encodePacked(_keyword))
         );
+    }
+
+    // public function
+
+    function getRoles(address _address) public view returns (string[] memory) {
+        return roles[_address];
+    }
+
+    function hasRoleOf(address _address, string memory _role)
+        public
+        view
+        returns (bool)
+    {
+        string[] memory _roles = roles[_address];
+        for (uint256 i = 0; i < _roles.length; i++) {
+            if (keccak256(bytes(_roles[i])) == keccak256(bytes(_role))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // TODO implement updateNFT func which holder can change their name, imageURL by them self
+    function updateOwnNFT(string memory _imageURI, string memory name) public {}
+
+    function mintWithHenkaku(
+        string memory _imageURI,
+        string memory _name,
+        uint256 _amount
+    ) public onlyValidData(_imageURI, _name) onlyNoneHolder(msg.sender) {
+        require(_amount >= price, "Not Enough Henkaku");
+        bool success = henkakuToken.transferFrom(
+            msg.sender,
+            address(this),
+            _amount
+        );
+        require(success, "Token transfer failed");
+        string[] memory _roles = new string[](2);
+        _roles[0] = "MEMBER";
+        _roles[1] = "MINTER";
+        _mint(_imageURI, _roles, "1000", msg.sender); // FIXME _point should be numeric type
+        emit BoughtMemberShipNFT(msg.sender, _amount);
     }
 
     function getUserAttributes(address _of)
