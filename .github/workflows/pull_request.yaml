@@ -17,6 +17,12 @@ jobs:
         with:
           node-version: '16'
           cache: yarn
+      - name: Setup dotenv
+        # Test account's fixed private key in hardhat local node
+        run: |
+          echo 'PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80' > .env
+          echo 'STAGING_ALCHEMY_KEY=' >> .env
+          echo 'PROD_ALCHEMY_KEY=' >> .env
       - name: Install packages
         run: yarn
       - name: Lint
