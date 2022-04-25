@@ -2,17 +2,17 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
 import {IERC20} from "./interface/IERC20.sol";
 
-contract PodCastNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
+contract PodCastNFT is ERC721, ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     IERC20 public henkakuToken;
+
     uint256 public price;
     address public fundAddress;
     bytes32 private keyword;
@@ -29,8 +29,11 @@ contract PodCastNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
     }
 
     PodcastKeyword private weeklyKeyword;
+
+    mapping(uint256 => string) private _tokenURIs;
     mapping(address => string[]) private roles;
     mapping(address => Attributes) private userAttribute;
+
     event BoughtMemberShipNFT(address _owner, uint256 _amount);
     event CheckedAnswer(address _by, uint256 _at);
 
@@ -42,28 +45,14 @@ contract PodCastNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
         setFundAddress(_fundAddress);
     }
 
+    // override
+
     function _beforeTokenTransfer(
         address from,
         address to,
         uint256 tokenId
     ) internal override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    function _burn(uint256 tokenId)
-        internal
-        override(ERC721, ERC721URIStorage)
-    {
-        super._burn(tokenId);
-    }
-
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721, ERC721URIStorage)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -75,10 +64,18 @@ contract PodCastNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
         return super.supportsInterface(interfaceId);
     }
 
-    function setPrice(uint256 _price) public onlyOwner {
-        require(_price >= 1e18, "price must be higher than 1e18 wei");
-        price = _price;
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        hasTokenId(tokenId)
+        returns (string memory)
+    {
+        return _tokenURIs[tokenId];
     }
+
+    // modifier
 
     modifier onlyNoneHolder(address _address) {
         require(balanceOf(_address) == 0, "Address Holds NFT");
@@ -90,6 +87,14 @@ contract PodCastNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
         _;
     }
 
+    modifier hasTokenId(uint256 _tokenId) {
+        require(
+            _exists(_tokenId),
+            "ERC721Metadata: URI set of nonexistent token"
+        );
+        _;
+    }
+
     modifier onlyValidData(string memory _imageURI, string memory _name) {
         // TODO check _imageURL is really valid or not. we might check file extension for example
         require(
@@ -98,6 +103,21 @@ contract PodCastNFT is ERC721URIStorage, ERC721Enumerable, Ownable {
         );
         require(bytes(_name).length > 0, "Invalid name: name cannot be blank");
         _;
+    }
+
+    // function
+
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI)
+        internal
+        virtual
+        hasTokenId(tokenId)
+    {
+        _tokenURIs[tokenId] = _tokenURI;
+    }
+
+    function setPrice(uint256 _price) public onlyOwner {
+        require(_price >= 1e18, "price must be higher than 1e18 wei");
+        price = _price;
     }
 
     function getRoles(address _address) public view returns (string[] memory) {
