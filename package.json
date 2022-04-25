@@ -4,7 +4,7 @@
     "deploy-local": "npx hardhat run scripts/deploy.js --network localhost",
     "deploy-rinkeby": "npx hardhat run scripts/deploy.js --network rinkeby",
     "verify-rinkeby": "npx hardhat verify --constructor-args arguments.js --network rinkeby",
-    "test": "yarn run hardhat test",
+    "test": "npx hardhat test",
     "lint:sol": "yarn solhint --fix --max-warnings 5 \"contracts/**/*.sol\"",
     "lint:js": "eslint --fix './{test,script}/**/*.{ts,js}' && prettier --write './{test,script}/**/*.{ts,js}'",
     "lint": "yarn lint:sol && yarn lint:js"
