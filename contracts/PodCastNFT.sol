@@ -15,7 +15,6 @@ contract PodCastNFT is ERC721, Ownable {
 
     uint256 public price;
     address public fundAddress;
-    bytes32 private keyword;
 
     struct PodcastKeyword {
         uint256 startedAt;
@@ -30,12 +29,13 @@ contract PodCastNFT is ERC721, Ownable {
 
     PodcastKeyword private weeklyKeyword;
 
-    mapping(uint256 => string) private _tokenURIs;
-    mapping(address => string[]) private roles;
-    mapping(address => Attributes) private userAttribute;
+    mapping(uint256 => string) public _tokenURIs;
+    mapping(address => string[]) public roles;
+    mapping(address => Attributes) public userAttribute;
 
     event BoughtMemberShipNFT(address _owner, uint256 _amount);
     event CheckedAnswer(address _by, uint256 _at);
+    event ClaimedToken(address _by, uint256 _amount);
 
     constructor(address _erc20, address _fundAddress)
         ERC721("Henkaku v0.2", "henkaku")
@@ -61,12 +61,12 @@ contract PodCastNFT is ERC721, Ownable {
     // modifier
 
     modifier onlyNoneHolder(address _address) {
-        require(balanceOf(_address) == 0, "Address Holds NFT");
+        require(balanceOf(_address) == 0, "MUST BE NONE HOLDER");
         _;
     }
 
     modifier onlyHolder(address _address) {
-        require(balanceOf(_address) != 0, "wallet must have membership nft");
+        require(balanceOf(_address) != 0, "MUST BE HOLDER");
         _;
     }
 
@@ -78,13 +78,12 @@ contract PodCastNFT is ERC721, Ownable {
         _;
     }
 
-    modifier onlyValidData(string memory _imageURI, string memory _name) {
+    modifier onlyValidData(string memory _imageURI) {
         // TODO check _imageURL is really valid or not. we might check file extension for example
         require(
             bytes(_imageURI).length > 0,
-            "Invalid imageURI: Re Enter image url again"
+            "Invalid imageURI"
         );
-        require(bytes(_name).length > 0, "Invalid name: name cannot be blank");
         _;
     }
 
@@ -98,33 +97,15 @@ contract PodCastNFT is ERC721, Ownable {
         _tokenURIs[tokenId] = _tokenURI;
     }
 
-    function getTokenURI(
-        uint256 _tokenId,
-        string memory _imageURI,
-        string[] memory _roles,
-        string memory _point
-    ) internal view returns (string memory) {
-        // TODO
-        return "";
-    }
-
     function _mint(
-        string memory _imageURI,
+        string memory finalTokenUri,
         string[] memory _roles,
-        string memory _point,
         address _to
     ) internal onlyNoneHolder(msg.sender) returns (uint256) {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _safeMint(_to, newItemId);
         roles[_to] = _roles;
-        // TODO implement getTokenURI with _roles
-        string memory finalTokenUri = getTokenURI(
-            newItemId,
-            _imageURI,
-            _roles,
-            _point
-        );
         _setTokenURI(newItemId, finalTokenUri);
         return newItemId;
     }
@@ -132,7 +113,7 @@ contract PodCastNFT is ERC721, Ownable {
     // admin function
 
     function setPrice(uint256 _price) public onlyOwner {
-        require(_price >= 1e18, "price must be higher than 1e18 wei");
+        require(_price >= 1e18, "MUST BE GTE 1e18");
         price = _price;
     }
 
@@ -154,27 +135,17 @@ contract PodCastNFT is ERC721, Ownable {
 
     function updateNFT(
         uint256 tokenId,
-        string memory _imageURI,
-        string[] memory _roles,
         string memory _point
     ) public onlyOwner {
-        string memory finalTokenUri = getTokenURI(
-            tokenId,
-            _imageURI,
-            _roles,
-            _point
-        );
-        _setTokenURI(tokenId, finalTokenUri);
+        _setTokenURI(tokenId, _tokenURIs[tokenId]);
     }
 
     function mint(
-        string memory _imageURI,
+        string memory _tokenURI,
         string[] memory _roles,
-        string memory _point,
         address _to
-    ) public onlyOwner returns (uint256) {
-        require(balanceOf(_to) == 0, "User has had already a membership NFT");
-        return _mint(_imageURI, _roles, _point, _to);
+    ) public onlyOwner onlyNoneHolder(_to) returns (uint256) {
+        return _mint(_tokenURI, _roles,  _to);
     }
 
     function setFundAddress(address _fundAddress) public onlyOwner {
@@ -184,7 +155,7 @@ contract PodCastNFT is ERC721, Ownable {
     function withdraw() public onlyOwner {
         uint256 _amount = henkakuToken.balanceOf(address(this));
         bool success = henkakuToken.transfer(fundAddress, _amount);
-        require(success, "Transaction Unsuccessful");
+        require(success, "TX FAILED");
     }
 
     function burn(uint256 _tokenId) public onlyOwner {
@@ -202,10 +173,6 @@ contract PodCastNFT is ERC721, Ownable {
     }
 
     // public function
-
-    function getRoles(address _address) public view returns (string[] memory) {
-        return roles[_address];
-    }
 
     function hasRoleOf(address _address, string memory _role)
         public
@@ -225,39 +192,28 @@ contract PodCastNFT is ERC721, Ownable {
     function updateOwnNFT(string memory _imageURI, string memory name) public {}
 
     function mintWithHenkaku(
-        string memory _imageURI,
-        string memory _name,
+        string memory _tokenURI,
         uint256 _amount
-    ) public onlyValidData(_imageURI, _name) onlyNoneHolder(msg.sender) {
-        require(_amount >= price, "Not Enough Henkaku");
+    ) public onlyValidData(_tokenURI) onlyNoneHolder(msg.sender) {
+        require(_amount >= price, "INSUFFICIENT AMOUNT");
         bool success = henkakuToken.transferFrom(
             msg.sender,
             address(this),
             _amount
         );
-        require(success, "Token transfer failed");
+        require(success, "TX FAILED");
         string[] memory _roles = new string[](2);
         _roles[0] = "MEMBER";
         _roles[1] = "MINTER";
-        _mint(_imageURI, _roles, "1000", msg.sender); // FIXME _point should be numeric type
+        _mint(_tokenURI, _roles, msg.sender); // FIXME _point should be numeric type
         emit BoughtMemberShipNFT(msg.sender, _amount);
     }
 
-    function getUserAttributes(address _of)
-        public
-        view
-        returns (Attributes memory)
-    {
-        return userAttribute[_of];
-    }
-
     function checkAnswer(string memory _keyword) public onlyHolder(msg.sender) {
-        bool isCorrect = weeklyKeyword.keyword ==
-            keccak256(abi.encodePacked(_keyword));
-        require(isCorrect, "Incorrect Answer");
+        require(weeklyKeyword.keyword == keccak256(abi.encodePacked(_keyword)), "WRONG ANSWER");
         require(
             userAttribute[msg.sender].answeredAt <= weeklyKeyword.startedAt,
-            "You cannot answer twice"
+            "ALREADY ANSWERED"
         );
         userAttribute[msg.sender].point += 100;
         userAttribute[msg.sender].claimableToken += 100e18;
@@ -266,21 +222,16 @@ contract PodCastNFT is ERC721, Ownable {
     }
 
     function claimToken() public onlyHolder(msg.sender) {
-        require(
-            userAttribute[msg.sender].claimableToken > 0,
-            "You don't have claimable token amount"
-        );
-        require(
-            henkakuToken.balanceOf(address(this)) >=
-                userAttribute[msg.sender].claimableToken,
-            "We don't have enough fund now"
-        );
+        uint256 amount = userAttribute[msg.sender].claimableToken;
+        require(amount > 0, "INSUFFICIENT AMOUNT");
+        require(henkakuToken.balanceOf(address(this)) >= amount, "INSUFFICIENT FOUND");
         bool success = henkakuToken.transfer(
             msg.sender,
-            userAttribute[msg.sender].claimableToken
+            amount
         );
-        require(success, "Transaction faild");
+        require(success, "TX FAILED");
         userAttribute[msg.sender].claimableToken = 0;
+        emit ClaimedToken(msg.sender, amount);
     }
 
     function totalSupply() public view returns (uint256) {

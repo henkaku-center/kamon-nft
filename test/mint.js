@@ -20,23 +20,22 @@ describe('PodCastNFT', function () {
     await contract.deployed()
   })
 
-  describe('getRoles', () => {
-    it('return empty without nft', async () => {
-      expect(await contract.getRoles(alice.address)).to.eql([])
+  describe('roles', () => {
+    it('revert if user does not hold', async () => {
+      await expect(contract.roles(alice.address, 0)).to.be.reverted
     })
     it('can retrieve roles', async () => {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor', 'MEMBER'],
-        '10000',
         alice.address
       )
       await mintTx.wait()
       expect(await contract.ownerOf(1)).to.be.equal(alice.address)
-      expect(await contract.getRoles(alice.address)).to.have.same.members([
-        'Podcast Contributor',
-        'MEMBER'
-      ])
+      expect(await contract.roles(alice.address, 0)).to.eq(
+        'Podcast Contributor'
+      )
+      expect(await contract.roles(alice.address, 1)).to.eq('MEMBER')
     })
   })
 
@@ -48,7 +47,6 @@ describe('PodCastNFT', function () {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor', 'MEMBER'],
-        '10000',
         alice.address
       )
       await mintTx.wait()
@@ -61,13 +59,12 @@ describe('PodCastNFT', function () {
     it('revert without nft', async () => {
       await expect(
         contract.addRole(alice.address, 'MEMBER')
-      ).to.be.revertedWith('wallet must have membership nft')
+      ).to.be.revertedWith('MUST BE HOLDER')
     })
     it('add roles correctly', async () => {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor'],
-        '10000',
         alice.address
       )
       await mintTx.wait()
@@ -81,35 +78,31 @@ describe('PodCastNFT', function () {
     it('revert without nft', async () => {
       await expect(
         contract.setRoles(alice.address, ['MEMBER', 'ADMIN'])
-      ).to.be.revertedWith('wallet must have membership nft')
+      ).to.be.revertedWith('MUST BE HOLDER')
     })
     it('add empty roles', async () => {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor'],
-        '10000',
         alice.address
       )
       await mintTx.wait()
       expect(await contract.hasRoleOf(alice.address, 'MEMBER')).to.be.false
       await contract.setRoles(alice.address, [])
-      expect(await contract.getRoles(alice.address)).to.have.same.members([])
+      await expect(contract.roles(alice.address, 0)).to.be.reverted
     })
 
     it('add roles correctly', async () => {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor'],
-        '10000',
         alice.address
       )
       await mintTx.wait()
       expect(await contract.hasRoleOf(alice.address, 'MEMBER')).to.be.false
       await contract.setRoles(alice.address, ['MEMBER', 'ADMIN'])
-      expect(await contract.getRoles(alice.address)).to.have.same.members([
-        'MEMBER',
-        'ADMIN'
-      ])
+      expect(await contract.roles(alice.address, 0)).to.eq('MEMBER')
+      expect(await contract.roles(alice.address, 1)).to.eq('ADMIN')
     })
   })
 
@@ -117,7 +110,6 @@ describe('PodCastNFT', function () {
     const mintTx = await contract.mint(
       'https://example.com/podcast.png',
       ['Podcast Contributor'],
-      '10000',
       alice.address
     )
     await mintTx.wait()
@@ -128,7 +120,6 @@ describe('PodCastNFT', function () {
     const mintTx = await contract.mint(
       'https://example.com/podcast.png',
       ['Podcast Contributor'],
-      '10000',
       alice.address
     )
     await mintTx.wait()
@@ -137,7 +128,6 @@ describe('PodCastNFT', function () {
       contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor'],
-        '10000',
         alice.address
       )
     ).eventually.to.rejectedWith(Error)
@@ -147,7 +137,7 @@ describe('PodCastNFT', function () {
     it('reverts with less amount', async () => {
       await expect(
         contract.setPrice(ethers.utils.parseUnits('1', 17))
-      ).eventually.to.rejectedWith('price must be higher than 1e18 wei')
+      ).eventually.to.rejectedWith('MUST BE GTE 1e18')
     })
 
     it('reverts when normal user try to change', async () => {
@@ -168,7 +158,6 @@ describe('PodCastNFT', function () {
       await expect(
         contract.mintWithHenkaku(
           'https://example.com/podcast.png',
-          'joi.eth',
           ethers.utils.parseUnits('1000', 18)
         )
       ).eventually.to.rejectedWith(Error)
@@ -184,7 +173,6 @@ describe('PodCastNFT', function () {
         .connect(alice)
         .mintWithHenkaku(
           'https://example.com/podcast.png',
-          'joi.eth',
           ethers.utils.parseUnits('1000', 18)
         )
       await tx.wait()
@@ -194,10 +182,9 @@ describe('PodCastNFT', function () {
           .connect(alice)
           .mintWithHenkaku(
             'https://example.com/podcast.png',
-            'joi.eth',
             ethers.utils.parseUnits('1000', 18)
           )
-      ).eventually.to.rejectedWith('Address Holds NFT')
+      ).eventually.to.rejectedWith('MUST BE NONE HOLDER')
     })
 
     it('revert if you try to buy with less price', async () => {
@@ -211,10 +198,9 @@ describe('PodCastNFT', function () {
           .connect(alice)
           .mintWithHenkaku(
             'https://example.com/podcast.png',
-            'joi.eth',
             ethers.utils.parseUnits('900', 18)
           )
-      ).eventually.to.rejectedWith('Not Enough Henkaku')
+      ).eventually.to.rejectedWith('INSUFFICIENT AMOUNT')
     })
 
     it('mint With henkaku token', async () => {
@@ -223,7 +209,6 @@ describe('PodCastNFT', function () {
       expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(0)
       const tx = await contract.mintWithHenkaku(
         'https://example.com/podcast.png',
-        'joi.eth',
         ethers.utils.parseUnits('1000', 18)
       )
       await tx.wait()
@@ -251,7 +236,6 @@ describe('PodCastNFT', function () {
         .connect(alice)
         .mintWithHenkaku(
           'https://example.com/podcast.png',
-          'joi.eth',
           ethers.utils.parseUnits('1000', 18)
         )
       await tx.wait()
@@ -291,7 +275,6 @@ describe('PodCastNFT', function () {
         .connect(alice)
         .mintWithHenkaku(
           'https://example.com/podcast.png',
-          'joi.eth',
           ethers.utils.parseUnits('1000', 18)
         )
       await tx.wait()
@@ -323,7 +306,6 @@ describe('PodCastNFT', function () {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor'],
-        '10000',
         owner.address
       )
       await mintTx.wait()
@@ -348,33 +330,32 @@ describe('PodCastNFT', function () {
         .connect(alice)
         .mintWithHenkaku(
           'https://example.com/podcast.png',
-          'joi.eth',
           ethers.utils.parseUnits('1000', 18)
         )
       await tx.wait()
       await contract.setKeyword('foobar', parseInt(Date.now() / 1000))
     })
     it('answer was correct and updated point', async () => {
-      expect((await contract.getUserAttributes(alice.address)).point).to.eq(0)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
       expect(
-        (await contract.getUserAttributes(alice.address)).claimableToken
+        (await contract.userAttribute(alice.address)).claimableToken
       ).to.eq(0)
       const tx = await contract.connect(alice).checkAnswer('foobar')
       await expect(tx).to.emit(contract, 'CheckedAnswer')
-      expect((await contract.getUserAttributes(alice.address)).point).to.eq(100)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(100)
       expect(
-        (await contract.getUserAttributes(alice.address)).claimableToken
+        (await contract.userAttribute(alice.address)).claimableToken
       ).to.eq(ethers.utils.parseUnits('100', 18))
     })
 
     it('revert if user tries to answer twice', async () => {
-      expect((await contract.getUserAttributes(alice.address)).point).to.eq(0)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
       const tx = await contract.connect(alice).checkAnswer('foobar')
       await expect(tx).to.emit(contract, 'CheckedAnswer')
-      expect((await contract.getUserAttributes(alice.address)).point).to.eq(100)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(100)
       await expect(
         contract.connect(alice).checkAnswer('foobar')
-      ).eventually.to.rejectedWith('You cannot answer twice')
+      ).eventually.to.rejectedWith('ALREADY ANSWERED')
     })
   })
 
@@ -389,7 +370,6 @@ describe('PodCastNFT', function () {
         .connect(alice)
         .mintWithHenkaku(
           'https://example.com/podcast.png',
-          'joi.eth',
           ethers.utils.parseUnits('1000', 18)
         )
       await tx.wait()
@@ -402,7 +382,7 @@ describe('PodCastNFT', function () {
       )
       await contract.connect(alice).claimToken()
       expect(
-        (await contract.getUserAttributes(alice.address)).claimableToken
+        (await contract.userAttribute(alice.address)).claimableToken
       ).to.eq(0)
       expect(await henkakuToken.balanceOf(alice.address)).to.eq(
         ethers.utils.parseUnits('500', 18)
@@ -415,11 +395,11 @@ describe('PodCastNFT', function () {
       )
       await contract.connect(alice).claimToken()
       expect(
-        (await contract.getUserAttributes(alice.address)).claimableToken
+        (await contract.userAttribute(alice.address)).claimableToken
       ).to.eq(0)
       await expect(
         contract.connect(alice).claimToken()
-      ).eventually.to.rejectedWith("You don't have claimable token amount")
+      ).eventually.to.rejectedWith('INSUFFICIENT AMOUNT')
     })
   })
 })
