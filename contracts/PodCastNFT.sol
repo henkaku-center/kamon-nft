@@ -80,10 +80,7 @@ contract PodCastNFT is ERC721, Ownable {
 
     modifier onlyValidData(string memory _imageURI) {
         // TODO check _imageURL is really valid or not. we might check file extension for example
-        require(
-            bytes(_imageURI).length > 0,
-            "Invalid imageURI"
-        );
+        require(bytes(_imageURI).length > 0, "Invalid imageURI");
         _;
     }
 
@@ -133,10 +130,7 @@ contract PodCastNFT is ERC721, Ownable {
         roles[_to].push(_role);
     }
 
-    function updateNFT(
-        uint256 tokenId,
-        string memory _point
-    ) public onlyOwner {
+    function updateNFT(uint256 tokenId, string memory _point) public onlyOwner {
         _setTokenURI(tokenId, _tokenURIs[tokenId]);
     }
 
@@ -145,7 +139,7 @@ contract PodCastNFT is ERC721, Ownable {
         string[] memory _roles,
         address _to
     ) public onlyOwner onlyNoneHolder(_to) returns (uint256) {
-        return _mint(_tokenURI, _roles,  _to);
+        return _mint(_tokenURI, _roles, _to);
     }
 
     function setFundAddress(address _fundAddress) public onlyOwner {
@@ -191,10 +185,11 @@ contract PodCastNFT is ERC721, Ownable {
     // TODO implement updateNFT func which holder can change their name, imageURL by them self
     function updateOwnNFT(string memory _imageURI, string memory name) public {}
 
-    function mintWithHenkaku(
-        string memory _tokenURI,
-        uint256 _amount
-    ) public onlyValidData(_tokenURI) onlyNoneHolder(msg.sender) {
+    function mintWithHenkaku(string memory _tokenURI, uint256 _amount)
+        public
+        onlyValidData(_tokenURI)
+        onlyNoneHolder(msg.sender)
+    {
         require(_amount >= price, "INSUFFICIENT AMOUNT");
         bool success = henkakuToken.transferFrom(
             msg.sender,
@@ -210,7 +205,10 @@ contract PodCastNFT is ERC721, Ownable {
     }
 
     function checkAnswer(string memory _keyword) public onlyHolder(msg.sender) {
-        require(weeklyKeyword.keyword == keccak256(abi.encodePacked(_keyword)), "WRONG ANSWER");
+        require(
+            weeklyKeyword.keyword == keccak256(abi.encodePacked(_keyword)),
+            "WRONG ANSWER"
+        );
         require(
             userAttribute[msg.sender].answeredAt <= weeklyKeyword.startedAt,
             "ALREADY ANSWERED"
@@ -224,11 +222,11 @@ contract PodCastNFT is ERC721, Ownable {
     function claimToken() public onlyHolder(msg.sender) {
         uint256 amount = userAttribute[msg.sender].claimableToken;
         require(amount > 0, "INSUFFICIENT AMOUNT");
-        require(henkakuToken.balanceOf(address(this)) >= amount, "INSUFFICIENT FOUND");
-        bool success = henkakuToken.transfer(
-            msg.sender,
-            amount
+        require(
+            henkakuToken.balanceOf(address(this)) >= amount,
+            "INSUFFICIENT FOUND"
         );
+        bool success = henkakuToken.transfer(msg.sender, amount);
         require(success, "TX FAILED");
         userAttribute[msg.sender].claimableToken = 0;
         emit ClaimedToken(msg.sender, amount);
