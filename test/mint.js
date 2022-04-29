@@ -402,11 +402,13 @@ describe('PodCastNFT', function () {
 
     it('add podcasst role if once the users points reach the target score', async () => {
       expect((await contract.getUserAttributes(alice.address)).point).to.eq(0)
-      expect(await contract.hasRoleOf(alice.address, 'Podcast Contributor')).to.be.false
+      expect(await contract.hasRoleOf(alice.address, 'Podcast Contributor')).to
+        .be.false
       const tx = await contract.connect(alice).checkAnswer('foobar')
       await expect(tx).to.emit(contract, 'CheckedAnswer')
       expect((await contract.getUserAttributes(alice.address)).point).to.eq(100)
-      expect(await contract.hasRoleOf(alice.address, 'Podcast Contributor')).to.be.true
+      expect(await contract.hasRoleOf(alice.address, 'Podcast Contributor')).to
+        .be.true
     })
   })
 
