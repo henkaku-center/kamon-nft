@@ -111,7 +111,7 @@ contract PodCastNFT is ERC721, Ownable {
         return newItemId;
     }
 
-        function checkPodcastRole() internal returns (string memory) {
+    function checkPodcastRole() internal returns (string memory) {
         uint256 podcastPoint = userAttribute[msg.sender].point;
         if (
             podcastPoint >= 20000 &&
@@ -143,9 +143,7 @@ contract PodCastNFT is ERC721, Ownable {
             hasRoleOf(msg.sender, "Podcast Veteran") == false
         ) {
             return "Podcast Veteran";
-        } else if (
-            hasRoleOf(msg.sender, "Podcast Contributor") == false
-        ) {
+        } else if (hasRoleOf(msg.sender, "Podcast Contributor") == false) {
             return "Podcast Contributor";
         }
         return "";
