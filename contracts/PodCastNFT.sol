@@ -111,6 +111,46 @@ contract PodCastNFT is ERC721, Ownable {
         return newItemId;
     }
 
+        function checkPodcastRole() internal returns (string memory) {
+        uint256 podcastPoint = userAttribute[msg.sender].point;
+        if (
+            podcastPoint >= 20000 &&
+            hasRoleOf(msg.sender, "Podcast God") == false
+        ) {
+            return "Podcast God";
+        } else if (
+            podcastPoint >= 10000 &&
+            hasRoleOf(msg.sender, "Podcast Emperor") == false
+        ) {
+            return "Podcast Emperor";
+        } else if (
+            podcastPoint >= 5000 &&
+            hasRoleOf(msg.sender, "Podcast King") == false
+        ) {
+            return "Podcast King";
+        } else if (
+            podcastPoint >= 3000 &&
+            hasRoleOf(msg.sender, "Podcast Lord") == false
+        ) {
+            return "Podcast Lord";
+        } else if (
+            podcastPoint >= 1000 &&
+            hasRoleOf(msg.sender, "Podcast Master") == false
+        ) {
+            return "Podcast Master";
+        } else if (
+            podcastPoint >= 500 &&
+            hasRoleOf(msg.sender, "Podcast Veteran") == false
+        ) {
+            return "Podcast Veteran";
+        } else if (
+            hasRoleOf(msg.sender, "Podcast Contributor") == false
+        ) {
+            return "Podcast Contributor";
+        }
+        return "";
+    }
+
     // admin function
 
     function setPrice(uint256 _price) public onlyOwner {
@@ -242,46 +282,6 @@ contract PodCastNFT is ERC721, Ownable {
         }
         userAttribute[msg.sender].answeredAt = block.timestamp;
         emit CheckedAnswer(msg.sender, userAttribute[msg.sender].answeredAt);
-    }
-
-    function checkPodcastRole() private returns (string memory) {
-        uint256 podcastPoint = userAttribute[msg.sender].point;
-        if (
-            podcastPoint >= 20000 &&
-            hasRoleOf(msg.sender, "Podcast God") == false
-        ) {
-            return "Podcast God";
-        } else if (
-            podcastPoint >= 10000 &&
-            hasRoleOf(msg.sender, "Podcast Emperor") == false
-        ) {
-            return "Podcast Emperor";
-        } else if (
-            podcastPoint >= 5000 &&
-            hasRoleOf(msg.sender, "Podcast King") == false
-        ) {
-            return "Podcast King";
-        } else if (
-            podcastPoint >= 3000 &&
-            hasRoleOf(msg.sender, "Podcast Lord") == false
-        ) {
-            return "Podcast Lord";
-        } else if (
-            podcastPoint >= 1000 &&
-            hasRoleOf(msg.sender, "Podcast Master") == false
-        ) {
-            return "Podcast Master";
-        } else if (
-            podcastPoint >= 500 &&
-            hasRoleOf(msg.sender, "Podcast Veteran") == false
-        ) {
-            return "Podcast Veteran";
-        } else {
-            if (hasRoleOf(msg.sender, "Podcast Contributor") == false) {
-                return "Podcast Contributor";
-            }
-        }
-        return "";
     }
 
     function claimToken() public onlyHolder(msg.sender) {
