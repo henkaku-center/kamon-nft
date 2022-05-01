@@ -6,7 +6,6 @@ jobs:
     name: Check the source code
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
@@ -17,6 +16,14 @@ jobs:
         with:
           node-version: '16'
           cache: yarn
+      - name: Checkout Base Branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.base_ref }}
+      - name: Check Contract Size
+        run: yarn hardhat size-contracts
+      - name: Checkout Target Branch
+        uses: actions/checkout@v3
       - name: Setup dotenv
         # Test account's fixed private key in hardhat local node
         run: |
@@ -29,3 +36,11 @@ jobs:
         run: yarn lint
       - name: Test
         run: yarn test
+      - name: Create comments
+        run: yarn hardhat size-contracts > ./comment
+      - name: Post comments
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          URL: ${{ github.event.pull_request.html_url }}
+        run:
+          gh pr comment -F ./comments "${URL}"
