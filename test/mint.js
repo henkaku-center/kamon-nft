@@ -420,7 +420,7 @@ describe('PodCastNFT', function () {
         alice.address
       )
       await mintTx.wait()
-      expect(await contract.userAttribute(alice.address).point).to.eq(0)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
     })
 
     it('can grant 100 points', async () => {
@@ -430,9 +430,21 @@ describe('PodCastNFT', function () {
         alice.address
       )
       await mintTx.wait()
-      expect(await contract.userAttribute(alice.address).point).to.eq(0)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
       await contract.giveAwayPoint(alice.address, 100)
-      expect(await contract.userAttribute(alice.address).point).to.eq(100)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(100)
+    })
+
+    it('can grant 0 points', async () => {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx.wait()
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
+      await contract.giveAwayPoint(alice.address, 0)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
     })
   })
 })
