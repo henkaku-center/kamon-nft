@@ -29,15 +29,18 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.base_ref }}
-      - name: Check Contract Size
+          clean: false
+      - name: Check Base Contract Size
         run: yarn hardhat size-contracts
       - name: Checkout Target Branch
         uses: actions/checkout@v3
+        with:
+          clean: false
       - name: Lint
         run: yarn lint
       - name: Test
         run: yarn test
-      - name: Create comments
+      - name: Check Target Contract Size
         run: yarn hardhat size-contracts > ./comment
       - name: Post comments
         env:
