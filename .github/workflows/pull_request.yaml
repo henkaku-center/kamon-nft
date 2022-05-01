@@ -41,7 +41,7 @@ jobs:
       - name: Test
         run: yarn test
       - name: Check Target Contract Size
-        run: yarn hardhat size-contracts > ./comments
+        run: echo "\`\`\`\n $(yarn hardhat size-contracts)\n \`\`\`" > ./comments
       - name: Post comments
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
