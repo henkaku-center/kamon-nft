@@ -58,6 +58,17 @@ contract PodCastNFT is ERC721, Ownable {
         return _tokenURIs[tokenId];
     }
 
+    function _afterTokenTransfer(
+        address _from,
+        address _to,
+        uint256 _tokenId
+    ) internal virtual override {
+        roles[_to] = roles[_from];
+        delete roles[_from];
+        userAttribute[_to] = userAttribute[_from];
+        delete userAttribute[_from];
+    }
+
     // modifier
 
     modifier onlyNoneHolder(address _address) {
@@ -238,6 +249,14 @@ contract PodCastNFT is ERC721, Ownable {
         require(success, "TX FAILED");
         userAttribute[msg.sender].claimableToken = 0;
         emit ClaimedToken(msg.sender, amount);
+    }
+
+    function transfer(
+        address _to,
+        uint256 _tokenId,
+        bytes memory _data
+    ) public onlyHolder(msg.sender) hasTokenId(_tokenId) {
+        _safeTransfer(msg.sender, _to, _tokenId, _data);
     }
 
     function totalSupply() public view returns (uint256) {
