@@ -91,7 +91,6 @@ describe('PodCastNFT', function () {
       await contract.setRoles(alice.address, [])
       await expect(contract.roles(alice.address, 0)).to.be.reverted
     })
-
     it('add roles correctly', async () => {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
@@ -106,31 +105,32 @@ describe('PodCastNFT', function () {
     })
   })
 
-  it('can mint for admin', async function () {
-    const mintTx = await contract.mint(
-      'https://example.com/podcast.png',
-      ['Podcast Contributor'],
-      alice.address
-    )
-    await mintTx.wait()
-    expect(await contract.ownerOf(1)).to.be.equal(alice.address)
-  })
-
-  it('cannot mint twice for the same user(owner)', async function () {
-    const mintTx = await contract.mint(
-      'https://example.com/podcast.png',
-      ['Podcast Contributor'],
-      alice.address
-    )
-    await mintTx.wait()
-
-    await expect(
-      contract.mint(
+  describe('mint', () => {
+    it('can mint for admin', async function () {
+      const mintTx = await contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor'],
         alice.address
       )
-    ).eventually.to.rejectedWith(Error)
+      await mintTx.wait()
+      expect(await contract.ownerOf(1)).to.be.equal(alice.address)
+    })
+
+    it('cannot mint twice for the same user(owner)', async function () {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx.wait()
+      await expect(
+        contract.mint(
+          'https://example.com/podcast.png',
+          ['Podcast Contributor'],
+          alice.address
+        )
+      ).eventually.to.rejectedWith(Error)
+    })
   })
 
   describe('setPrice', () => {
@@ -250,6 +250,7 @@ describe('PodCastNFT', function () {
       expect(await contract.totalSupply()).to.eq(1)
     })
   })
+
   describe('setFundAddress', () => {
     it('reverts if caller is not the owner', async () => {
       await expect(
