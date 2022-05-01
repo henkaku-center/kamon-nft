@@ -6,7 +6,7 @@ const main = async () => {
   const podcastNFTContract = await hre.ethers.getContractFactory('PodCastNFT')
   const contract = await podcastNFTContract.deploy(
     process.env.TOKEN_ADDRESS,
-    process.env.ADMIN_ADDRESS
+    process.env.FUND_ADDRESS
   )
 
   await contract.deployed()
