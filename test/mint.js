@@ -176,17 +176,22 @@ describe('PodCastNFT', function () {
 
     it('reverts when normal user try to change', async () => {
       await expect(
-        contract.connect(alice).setRewardHenkaku(ethers.utils.parseUnits('500', 18))
+        contract
+          .connect(alice)
+          .setRewardHenkaku(ethers.utils.parseUnits('500', 18))
       ).eventually.to.rejectedWith(Error)
     })
 
     it('sets henkaku correctly', async () => {
-      expect(await contract.rewardHenkaku()).to.eq(ethers.utils.parseUnits('100', 18))
+      expect(await contract.rewardHenkaku()).to.eq(
+        ethers.utils.parseUnits('100', 18)
+      )
       await contract.setRewardHenkaku(ethers.utils.parseUnits('500', 18))
-      expect(await contract.rewardHenkaku()).to.eq(ethers.utils.parseUnits('500', 18))
+      expect(await contract.rewardHenkaku()).to.eq(
+        ethers.utils.parseUnits('500', 18)
+      )
     })
   })
-
 
   describe('mintWithHenkaku', () => {
     it('revert without approval', async () => {

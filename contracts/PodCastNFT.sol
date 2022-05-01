@@ -15,7 +15,7 @@ contract PodCastNFT is ERC721, Ownable {
 
     uint256 public price;
     uint256 public rewardPoint;
-    uint256 public rewardHenkaku; 
+    uint256 public rewardHenkaku;
     address public fundAddress;
 
     struct PodcastKeyword {
