@@ -17,14 +17,6 @@ jobs:
         with:
           node-version: '16'
           cache: yarn
-      - name: Checkout Base Branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.base_ref }}
-      - name: Check Contract Size
-        run: yarn hardhat size-contracts
-      - name: Checkout Target Branch
-        uses: actions/checkout@v3
       - name: Setup dotenv
         # Test account's fixed private key in hardhat local node
         run: |
@@ -33,6 +25,14 @@ jobs:
           echo 'PROD_ALCHEMY_KEY=' >> .env
       - name: Install packages
         run: yarn
+      - name: Checkout Base Branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.base_ref }}
+      - name: Check Contract Size
+        run: yarn hardhat size-contracts
+      - name: Checkout Target Branch
+        uses: actions/checkout@v3
       - name: Lint
         run: yarn lint
       - name: Test
