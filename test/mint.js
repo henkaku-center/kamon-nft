@@ -91,7 +91,6 @@ describe('PodCastNFT', function () {
       await contract.setRoles(alice.address, [])
       await expect(contract.roles(alice.address, 0)).to.be.reverted
     })
-
     it('add roles correctly', async () => {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
@@ -106,31 +105,32 @@ describe('PodCastNFT', function () {
     })
   })
 
-  it('can mint for admin', async function () {
-    const mintTx = await contract.mint(
-      'https://example.com/podcast.png',
-      ['Podcast Contributor'],
-      alice.address
-    )
-    await mintTx.wait()
-    expect(await contract.ownerOf(1)).to.be.equal(alice.address)
-  })
-
-  it('cannot mint twice for the same user(owner)', async function () {
-    const mintTx = await contract.mint(
-      'https://example.com/podcast.png',
-      ['Podcast Contributor'],
-      alice.address
-    )
-    await mintTx.wait()
-
-    await expect(
-      contract.mint(
+  describe('mint', () => {
+    it('can mint for admin', async function () {
+      const mintTx = await contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor'],
         alice.address
       )
-    ).eventually.to.rejectedWith(Error)
+      await mintTx.wait()
+      expect(await contract.ownerOf(1)).to.be.equal(alice.address)
+    })
+
+    it('cannot mint twice for the same user(owner)', async function () {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx.wait()
+      await expect(
+        contract.mint(
+          'https://example.com/podcast.png',
+          ['Podcast Contributor'],
+          alice.address
+        )
+      ).eventually.to.rejectedWith(Error)
+    })
   })
 
   describe('setPrice', () => {
@@ -250,6 +250,7 @@ describe('PodCastNFT', function () {
       expect(await contract.totalSupply()).to.eq(1)
     })
   })
+
   describe('setFundAddress', () => {
     it('reverts if caller is not the owner', async () => {
       await expect(
@@ -335,6 +336,7 @@ describe('PodCastNFT', function () {
       await tx.wait()
       await contract.setKeyword('foobar', parseInt(Date.now() / 1000))
     })
+
     it('answer was correct and updated point', async () => {
       expect((await contract.userAttribute(alice.address)).point).to.eq(0)
       expect(
@@ -376,6 +378,7 @@ describe('PodCastNFT', function () {
       await contract.setKeyword('foobar', parseInt(Date.now() / 1000))
       await contract.connect(alice).checkAnswer('foobar')
     })
+
     it('claim token successfully', async () => {
       expect(await henkakuToken.balanceOf(alice.address)).to.eq(
         ethers.utils.parseUnits('400', 18)
@@ -400,6 +403,48 @@ describe('PodCastNFT', function () {
       await expect(
         contract.connect(alice).claimToken()
       ).eventually.to.rejectedWith('INSUFFICIENT AMOUNT')
+    })
+  })
+
+  describe('giveAwayPoint', () => {
+    it('revert without nft', async () => {
+      await expect(
+        contract.setRoles(alice.address, ['MEMBER', 'ADMIN'])
+      ).to.be.revertedWith('MUST BE HOLDER')
+    })
+
+    it('has 0 points at first', async () => {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx.wait()
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
+    })
+
+    it('can grant 100 points', async () => {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx.wait()
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
+      await contract.giveAwayPoint(alice.address, 100)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(100)
+    })
+
+    it('can grant 0 points', async () => {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx.wait()
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
+      await contract.giveAwayPoint(alice.address, 0)
+      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
     })
   })
 })
