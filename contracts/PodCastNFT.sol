@@ -14,6 +14,8 @@ contract PodCastNFT is ERC721, Ownable {
     IERC20 public henkakuToken;
 
     uint256 public price;
+    uint256 public rewardPoint;
+    uint256 public rewardHenkaku;
     address public fundAddress;
 
     struct PodcastKeyword {
@@ -42,6 +44,8 @@ contract PodCastNFT is ERC721, Ownable {
     {
         henkakuToken = IERC20(_erc20);
         setPrice(1000e18);
+        setRewardPoint(100);
+        setRewardHenkaku(100e18);
         setFundAddress(_fundAddress);
     }
 
@@ -112,6 +116,15 @@ contract PodCastNFT is ERC721, Ownable {
     function setPrice(uint256 _price) public onlyOwner {
         require(_price >= 1e18, "MUST BE GTE 1e18");
         price = _price;
+    }
+
+    function setRewardPoint(uint256 _rewardPoint) public onlyOwner {
+        rewardPoint = _rewardPoint;
+    }
+
+    function setRewardHenkaku(uint256 _rewardHenkaku) public onlyOwner {
+        require(_rewardHenkaku >= 1e18, "MUST BE GTE 1e18");
+        rewardHenkaku = _rewardHenkaku;
     }
 
     function setRoles(address _to, string[] memory _roles)
@@ -221,8 +234,8 @@ contract PodCastNFT is ERC721, Ownable {
             userAttribute[msg.sender].answeredAt <= weeklyKeyword.startedAt,
             "ALREADY ANSWERED"
         );
-        userAttribute[msg.sender].point += 100;
-        userAttribute[msg.sender].claimableToken += 100e18;
+        userAttribute[msg.sender].point += rewardPoint;
+        userAttribute[msg.sender].claimableToken += rewardHenkaku;
         userAttribute[msg.sender].answeredAt = block.timestamp;
         emit CheckedAnswer(msg.sender, userAttribute[msg.sender].answeredAt);
     }
