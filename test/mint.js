@@ -461,6 +461,9 @@ describe('PodCastNFT', function () {
       )
       await mintTx.wait()
       expect((await contract.userAttribute(alice.address)).point).to.eq(0)
+      expect(
+        (await contract.userAttribute(alice.address)).claimableToken
+      ).to.eq(0)
     })
 
     it('can grant 100 points', async () => {
@@ -470,9 +473,15 @@ describe('PodCastNFT', function () {
         alice.address
       )
       await mintTx.wait()
-      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
-      await contract.giveAwayPoint(alice.address, 100)
+      await contract.giveAwayPoint(
+        alice.address,
+        100,
+        ethers.utils.parseUnits('100', 18)
+      )
       expect((await contract.userAttribute(alice.address)).point).to.eq(100)
+      expect(
+        (await contract.userAttribute(alice.address)).claimableToken
+      ).to.eq(ethers.utils.parseUnits('100', 18))
     })
 
     it('can grant 0 points', async () => {
@@ -482,9 +491,15 @@ describe('PodCastNFT', function () {
         alice.address
       )
       await mintTx.wait()
+      await contract.giveAwayPoint(
+        alice.address,
+        0,
+        ethers.utils.parseUnits('0', 18)
+      )
       expect((await contract.userAttribute(alice.address)).point).to.eq(0)
-      await contract.giveAwayPoint(alice.address, 0)
-      expect((await contract.userAttribute(alice.address)).point).to.eq(0)
+      expect(
+        (await contract.userAttribute(alice.address)).claimableToken
+      ).to.eq(ethers.utils.parseUnits('0', 18))
     })
   })
 })
