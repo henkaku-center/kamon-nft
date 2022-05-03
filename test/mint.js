@@ -502,4 +502,56 @@ describe('PodCastNFT', function () {
       ).to.eq(ethers.utils.parseUnits('0', 18))
     })
   })
+
+  describe('transfer', async () => {
+    it('revert if transfer by non-owner', async () => {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor', 'MEMBER'],
+        alice.address
+      )
+      await mintTx.wait()
+
+      expect(
+        contract.connect(alice).transferFrom(alice.address, bob.address, 1)
+      ).to.be.revertedWith('Ownable: caller is not the owner')
+    })
+
+    it('can transfer', async () => {
+      const roles = ['Podcast Contributor', 'MEMBER']
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        roles,
+        alice.address
+      )
+      await mintTx.wait()
+
+      const point = 100
+      const claimableToken = ethers.utils.parseUnits('100', 18)
+      const giveAwayPointTx = await contract.giveAwayPoint(
+        alice.address,
+        point,
+        claimableToken
+      )
+      await giveAwayPointTx.wait()
+
+      const transferTx = await contract.transferFrom(
+        alice.address,
+        bob.address,
+        1
+      )
+      await transferTx.wait()
+
+      expect(await contract.balanceOf(alice.address)).to.eq(0)
+      expect(contract.roles(alice.address, 0)).to.be.reverted
+      expect(contract.userAttribute(alice.address)).to.be.reverted
+      expect(await contract.balanceOf(bob.address)).to.eq(1)
+      expect(await contract.roles(bob.address, 0)).to.eq(roles[0])
+      expect(await contract.roles(bob.address, 1)).to.eq(roles[1])
+      expect((await contract.userAttribute(bob.address)).point).to.eq(point)
+      expect((await contract.userAttribute(bob.address)).claimableToken).to.eq(
+        claimableToken
+      )
+    })
+  })
 })

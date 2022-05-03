@@ -62,6 +62,25 @@ contract PodCastNFT is ERC721, Ownable {
         return _tokenURIs[tokenId];
     }
 
+    function _afterTokenTransfer(
+        address _from,
+        address _to,
+        uint256 _tokenId
+    ) internal virtual override {
+        roles[_to] = roles[_from];
+        delete roles[_from];
+        userAttribute[_to] = userAttribute[_from];
+        delete userAttribute[_from];
+    }
+
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _tokenId
+    ) public virtual override onlyOwner {
+        _transfer(_from, _to, _tokenId);
+    }
+
     // modifier
 
     modifier onlyNoneHolder(address _address) {
