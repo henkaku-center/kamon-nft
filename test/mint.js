@@ -504,23 +504,17 @@ describe('PodCastNFT', function () {
   })
 
   describe('transfer', async () => {
-    it('revert without nft', async () => {
-      await expect(
-        contract.setRoles(alice.address, ['MEMBER', 'ADMIN'])
-      ).to.be.revertedWith('MUST BE HOLDER')
-    })
-
-    it('revert without token ID', async () => {
+    it('revert if transfer by non-owner', async () => {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
-        ['Podcast Contributor'],
+        ['Podcast Contributor', 'MEMBER'],
         alice.address
       )
       await mintTx.wait()
 
-      await expect(
-        contract.connect(alice).transfer(bob.address, 2, 1)
-      ).to.be.revertedWith('ERC721Metadata: URI set of nonexistent token')
+      expect(
+        contract.connect(alice).transferFrom(alice.address, bob.address, 1)
+      ).to.be.revertedWith('Ownable: caller is not the owner')
     })
 
     it('can transfer', async () => {
@@ -533,12 +527,19 @@ describe('PodCastNFT', function () {
       await mintTx.wait()
 
       const point = 100
-      const giveAwayPointTx = await contract.giveAwayPoint(alice.address, point)
+      const claimableToken = ethers.utils.parseUnits('100', 18)
+      const giveAwayPointTx = await contract.giveAwayPoint(
+        alice.address,
+        point,
+        claimableToken
+      )
       await giveAwayPointTx.wait()
 
-      const transferTx = await contract
-        .connect(alice)
-        .transfer(bob.address, 1, 1)
+      const transferTx = await contract.transferFrom(
+        alice.address,
+        bob.address,
+        1
+      )
       await transferTx.wait()
 
       expect(await contract.balanceOf(alice.address)).to.eq(0)
@@ -549,7 +550,7 @@ describe('PodCastNFT', function () {
       expect(await contract.roles(bob.address, 1)).to.eq(roles[1])
       expect((await contract.userAttribute(bob.address)).point).to.eq(point)
       expect((await contract.userAttribute(bob.address)).claimableToken).to.eq(
-        0
+        claimableToken
       )
     })
   })
