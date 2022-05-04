@@ -2,7 +2,7 @@
   "name": "hardhat-project",
   "scripts": {
     "deploy-local": "npx hardhat run scripts/deploy.js --network localhost",
-    "deploy-rinkeby": "npx hardhat run scripts/deploy.js --network rinkeby",
+    "deploy-rinkeby": "npx hardhat run scripts/deployTest.js --network rinkeby",
     "verify-rinkeby": "npx hardhat verify --constructor-args arguments.js --network rinkeby",
     "test": "npx hardhat test",
     "lint:sol": "yarn solhint --fix --max-warnings 5 \"contracts/**/*.sol\"",
