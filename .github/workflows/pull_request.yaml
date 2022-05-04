@@ -31,7 +31,7 @@ jobs:
           ref: ${{ github.base_ref }}
           clean: false
       - name: Check Base Contract Size
-        run: yarn csize
+        run: npx hardhat size-contracts
       - name: Checkout Target Branch
         uses: actions/checkout@v3
         with:
