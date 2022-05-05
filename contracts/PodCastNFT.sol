@@ -42,7 +42,7 @@ contract PodCastNFT is ERC721, Ownable {
     constructor(address _erc20, address _fundAddress)
         ERC721("Henkaku v0.2", "henkaku")
     {
-        henkakuToken = IERC20(_erc20);
+        setTokenAddr(_erc20);
         setPrice(1000e18);
         setRewardPoint(100);
         setRewardHenkaku(100e18);
@@ -208,6 +208,10 @@ contract PodCastNFT is ERC721, Ownable {
     }
 
     // public function
+
+    function setTokenAddr(address _erc20) public onlyOwner {
+        henkakuToken = IERC20(_erc20);
+    }
 
     function hasRoleOf(address _address, string memory _role)
         public

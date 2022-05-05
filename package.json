@@ -5,6 +5,7 @@
     "deploy-rinkeby": "npx hardhat run scripts/deployTest.js --network rinkeby",
     "verify-rinkeby": "npx hardhat verify --constructor-args arguments.js --network rinkeby",
     "test": "npx hardhat test",
+    "csize": "npx hardhat size-contracts",
     "lint:sol": "yarn solhint --fix --max-warnings 5 \"contracts/**/*.sol\"",
     "lint:js": "eslint --fix './{test,script}/**/*.{ts,js}' && prettier --write './{test,script,contracts}/**/*.{ts,js,sol}'",
     "lint": "yarn lint:sol && yarn lint:js"

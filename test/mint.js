@@ -20,6 +20,24 @@ describe('PodCastNFT', function () {
     await contract.deployed()
   })
 
+  describe('setHenkakuToken', () => {
+    it('revert if user is not owner', async () => {
+      const henkakuToken2 = await HenkakuToken.deploy()
+      await henkakuToken2.deployed()
+      await expect(contract.connect(alice).setTokenAddr(henkakuToken2.address)).to.be.reverted
+    })
+
+    it('owner set token address correctly', async () => {
+      const henkakuToken2 = await HenkakuToken.deploy()
+      await henkakuToken2.deployed()
+
+      expect(await contract.henkakuToken()).to.be.equal(henkakuToken.address)
+      let tx = await contract.setTokenAddr(henkakuToken2.address)
+      tx.wait()
+      expect(await contract.henkakuToken()).to.be.equal(henkakuToken2.address)
+    })
+  })
+
   describe('roles', () => {
     it('revert if user does not hold', async () => {
       await expect(contract.roles(alice.address, 0)).to.be.reverted
