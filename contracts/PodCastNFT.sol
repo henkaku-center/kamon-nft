@@ -101,12 +101,6 @@ contract PodCastNFT is ERC721, Ownable {
         _;
     }
 
-    modifier onlyValidData(string memory _imageURI) {
-        // TODO check _imageURL is really valid or not. we might check file extension for example
-        require(bytes(_imageURI).length > 0, "Invalid imageURI");
-        _;
-    }
-
     // internal function
 
     function _setTokenURI(uint256 tokenId, string memory _tokenURI)
@@ -210,11 +204,11 @@ contract PodCastNFT is ERC721, Ownable {
         );
     }
 
-    // public function
-
     function setTokenAddr(address _erc20) public onlyOwner {
         henkakuToken = IERC20(_erc20);
     }
+
+    // public function
 
     function hasRoleOf(address _address, string memory _role)
         public
@@ -230,19 +224,16 @@ contract PodCastNFT is ERC721, Ownable {
         return false;
     }
 
-    function updateOwnNFT(uint256 tokenId, string memory finalTokenUri)
-        public
-        onlyHolder(msg.sender)
-    {
+    function updateOwnNFT(uint256 tokenId, string memory finalTokenUri) public {
         require(ownerOf(tokenId) == msg.sender, "NOT NFT OWNER");
         _setTokenURI(tokenId, finalTokenUri);
     }
 
     function mintWithHenkaku(string memory _tokenURI, uint256 _amount)
         public
-        onlyValidData(_tokenURI)
         onlyNoneHolder(msg.sender)
     {
+        require(bytes(_tokenURI).length > 0, "Invalid tokenURI");
         require(_amount >= price, "INSUFFICIENT AMOUNT");
         bool success = henkakuToken.transferFrom(
             msg.sender,
