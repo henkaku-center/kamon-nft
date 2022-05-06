@@ -574,7 +574,7 @@ describe('PodCastNFT', function () {
     })
   })
 
-  describe.only('emit', () => {
+  describe('emit', () => {
     it('can emit BoughtMemberShipNFT', async () => {
       await henkakuToken.transfer(
         alice.address,
@@ -591,7 +591,7 @@ describe('PodCastNFT', function () {
           )
       )
         .to.emit(contract, 'BoughtMemberShipNFT')
-        .withArgs(alice.address, ethers.utils.parseUnits('1000', 18))
+        .withArgs(alice.address, 1)
     })
   })
 })

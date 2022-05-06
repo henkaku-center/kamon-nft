@@ -35,7 +35,7 @@ contract PodCastNFT is ERC721, Ownable {
     mapping(address => string[]) public roles;
     mapping(address => Attributes) public userAttribute;
 
-    event BoughtMemberShipNFT(address _owner, uint256 _amount);
+    event BoughtMemberShipNFT(address _owner, uint256 _tokenId);
     event CheckedAnswer(address _by, uint256 _at);
     event ClaimedToken(address _by, uint256 _amount);
 
@@ -246,7 +246,7 @@ contract PodCastNFT is ERC721, Ownable {
         _roles[0] = "MEMBER";
         _roles[1] = "MINTER";
         _mint(_tokenURI, _roles, msg.sender);
-        emit BoughtMemberShipNFT(msg.sender, _amount);
+        emit BoughtMemberShipNFT(msg.sender, _tokenIds.current());
     }
 
     function checkAnswer(string memory _keyword) public onlyHolder(msg.sender) {
