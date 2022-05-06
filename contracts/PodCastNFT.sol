@@ -162,8 +162,11 @@ contract PodCastNFT is ERC721, Ownable {
         roles[_to].push(_role);
     }
 
-    function updateNFT(uint256 tokenId, string memory _point) public onlyOwner {
-        _setTokenURI(tokenId, _tokenURIs[tokenId]);
+    function updateNFT(uint256 tokenId, string memory finalTokenUri)
+        public
+        onlyOwner
+    {
+        _setTokenURI(tokenId, finalTokenUri);
     }
 
     function mint(
