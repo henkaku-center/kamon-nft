@@ -230,8 +230,13 @@ contract PodCastNFT is ERC721, Ownable {
         return false;
     }
 
-    // TODO implement updateNFT func which holder can change their name, imageURL by them self
-    function updateOwnNFT(string memory _imageURI, string memory name) public {}
+    function updateOwnNFT(uint256 tokenId, string memory finalTokenUri)
+        public
+        onlyHolder(msg.sender)
+    {
+        require(ownerOf(tokenId) == msg.sender, "NOT NFT OWNER");
+        _setTokenURI(tokenId, finalTokenUri);
+    }
 
     function mintWithHenkaku(string memory _tokenURI, uint256 _amount)
         public

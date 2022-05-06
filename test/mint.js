@@ -596,6 +596,19 @@ describe('PodCastNFT', function () {
   })
 
   describe('updateNFT', async () => {
+    it('revert if not the owner', async () => {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx.wait()
+
+      await expect(
+        contract.connect(alice).updateNFT(1, 'https://example.com/new.png')
+      ).to.be.reverted
+    })
+
     it('can update tokenURI', async () => {
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
@@ -611,6 +624,48 @@ describe('PodCastNFT', function () {
         1,
         'https://example.com/new.png'
       )
+      await updateTx.wait()
+      expect(await contract.tokenURI(1)).to.be.equal(
+        'https://example.com/new.png'
+      )
+    })
+  })
+
+  describe('updateOwnNFT', async () => {
+    it('revert if not the NFT owner', async () => {
+      const mintTx1 = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx1.wait()
+
+      const mintTx2 = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        owner.address
+      )
+      await mintTx2.wait()
+
+      await expect(
+        contract.connect(owner).updateOwnNFT(1, 'https://example.com/new.png')
+      ).to.be.reverted
+    })
+
+    it('can update tokenURI', async () => {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx.wait()
+      expect(await contract.tokenURI(1)).to.be.equal(
+        'https://example.com/podcast.png'
+      )
+
+      const updateTx = await contract
+        .connect(alice)
+        .updateOwnNFT(1, 'https://example.com/new.png')
       await updateTx.wait()
       expect(await contract.tokenURI(1)).to.be.equal(
         'https://example.com/new.png'
