@@ -245,7 +245,6 @@ contract PodCastNFT is ERC721, Ownable {
         string[] memory _roles = new string[](2);
         _roles[0] = "MEMBER";
         _roles[1] = "MINTER";
-        _mint(_tokenURI, _roles, msg.sender);
         uint256 newItemId = _mint(_tokenURI, _roles, msg.sender);
         emit BoughtMemberShipNFT(msg.sender, newItemId);
     }
