@@ -589,9 +589,32 @@ describe('PodCastNFT', function () {
             'https://example.com/podcast.png',
             ethers.utils.parseUnits('1000', 18)
           )
+          .to.emit(contract, 'BoughtMemberShipNFT')
+          .withArgs(alice.address, 1)
       )
-        .to.emit(contract, 'BoughtMemberShipNFT')
-        .withArgs(alice.address, 1)
+    })
+  })
+
+  describe('updateNFT', async () => {
+    it('can update tokenURI', async () => {
+      const mintTx = await contract.mint(
+        'https://example.com/podcast.png',
+        ['Podcast Contributor'],
+        alice.address
+      )
+      await mintTx.wait()
+      expect(await contract.tokenURI(1)).to.be.equal(
+        'https://example.com/podcast.png'
+      )
+
+      const updateTx = await contract.updateNFT(
+        1,
+        'https://example.com/new.png'
+      )
+      await updateTx.wait()
+      expect(await contract.tokenURI(1)).to.be.equal(
+        'https://example.com/new.png'
+      )
     })
   })
 })
