@@ -24,7 +24,8 @@ describe('PodCastNFT', function () {
     it('revert if user is not owner', async () => {
       const henkakuToken2 = await HenkakuToken.deploy()
       await henkakuToken2.deployed()
-      await expect(contract.connect(alice).setTokenAddr(henkakuToken2.address)).to.be.reverted
+      await expect(contract.connect(alice).setTokenAddr(henkakuToken2.address))
+        .to.be.reverted
     })
 
     it('owner set token address correctly', async () => {
@@ -261,7 +262,7 @@ describe('PodCastNFT', function () {
       ).eventually.to.rejectedWith('INSUFFICIENT AMOUNT')
     })
 
-    it('mint With henkaku token', async () => {
+    it('mint with henkaku token', async () => {
       const balance = await henkakuToken.balanceOf(owner.address)
       await henkakuToken.approve(contract.address, price)
       expect(await henkakuToken.balanceOf(contract.address)).to.be.eq(0)
@@ -282,7 +283,7 @@ describe('PodCastNFT', function () {
       expect(await contract.totalSupply()).to.eq(1)
     })
 
-    it('mint With henkaku token by alice', async () => {
+    it('mint with henkaku token by alice', async () => {
       await henkakuToken.transfer(
         alice.address,
         ethers.utils.parseUnits('1400', 18)
@@ -570,6 +571,27 @@ describe('PodCastNFT', function () {
       expect((await contract.userAttribute(bob.address)).claimableToken).to.eq(
         claimableToken
       )
+    })
+  })
+
+  describe('emit', () => {
+    it('can emit BoughtMemberShipNFT', async () => {
+      await henkakuToken.transfer(
+        alice.address,
+        ethers.utils.parseUnits('1400', 18)
+      )
+      await henkakuToken.connect(alice).approve(contract.address, price)
+
+      await expect(
+        contract
+          .connect(alice)
+          .mintWithHenkaku(
+            'https://example.com/podcast.png',
+            ethers.utils.parseUnits('1000', 18)
+          )
+      )
+        .to.emit(contract, 'BoughtMemberShipNFT')
+        .withArgs(alice.address, 1)
     })
   })
 })
