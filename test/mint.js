@@ -589,9 +589,9 @@ describe('PodCastNFT', function () {
             'https://example.com/podcast.png',
             ethers.utils.parseUnits('1000', 18)
           )
-          .to.emit(contract, 'BoughtMemberShipNFT')
-          .withArgs(alice.address, 1)
       )
+        .to.emit(contract, 'BoughtMemberShipNFT')
+        .withArgs(alice.address, 1)
     })
   })
 
