@@ -684,7 +684,7 @@ describe('PodCastNFT', function () {
 
     it('sets contract URI correctly', async () => {
       expect(await contract.contractURI()).to.eq('')
-      await contract.setContractURI('https://metadata-url.com/my-metadata"')
+      await contract.setContractURI('https://metadata-url.com/my-metadata')
       expect(await contract.contractURI()).to.eq(
         'https://metadata-url.com/my-metadata'
       )
