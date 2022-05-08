@@ -672,4 +672,22 @@ describe('PodCastNFT', function () {
       )
     })
   })
+
+  describe('setContractURI', () => {
+    it('reverts if caller is not the owner', async () => {
+      await expect(
+        contract
+          .connect(alice)
+          .setContractURI('https://metadata-url.com/my-metadata')
+      ).eventually.to.rejectedWith(Error)
+    })
+
+    it('sets contract URI correctly', async () => {
+      expect(await contract.contractURI()).to.eq('')
+      await contract.setContractURI('https://metadata-url.com/my-metadata')
+      expect(await contract.contractURI()).to.eq(
+        'https://metadata-url.com/my-metadata'
+      )
+    })
+  })
 })

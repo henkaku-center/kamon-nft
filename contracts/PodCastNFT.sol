@@ -17,6 +17,7 @@ contract PodCastNFT is ERC721, Ownable {
     uint256 public rewardPoint;
     uint256 public rewardHenkaku;
     address public fundAddress;
+    string private _contractURI;
 
     struct PodcastKeyword {
         uint256 startedAt;
@@ -208,6 +209,10 @@ contract PodCastNFT is ERC721, Ownable {
         henkakuToken = IERC20(_erc20);
     }
 
+    function setContractURI(string memory uri) public onlyOwner {
+        _contractURI = uri;
+    }
+
     // public function
 
     function hasRoleOf(address _address, string memory _role)
@@ -278,5 +283,9 @@ contract PodCastNFT is ERC721, Ownable {
 
     function totalSupply() public view returns (uint256) {
         return _tokenIds.current();
+    }
+
+    function contractURI() public view returns (string memory) {
+        return _contractURI;
     }
 }
