@@ -6,9 +6,9 @@ const main = async () => {
   const HenkakuToken = await hre.ethers.getContractFactory('MockERC20')
   const henkakuToken = await HenkakuToken.deploy()
   await henkakuToken.deployed()
-  const podcastNFTContract = await hre.ethers.getContractFactory('PodCastNFT')
-  const contract = await podcastNFTContract.deploy(
-    henkakuToken.address,
+  const kamonNFTContract = await hre.ethers.getContractFactory('KamonNFT')
+  const contract = await kamonNFTContract.deploy(
+    '0x6FDDbe89B90795Eb0652F80fc3dBC2c61e753b1C', //henkakuToken.address,
     process.env.FUND_ADDRESS
   )
 

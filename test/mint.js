@@ -4,7 +4,7 @@ const { ethers } = require('hardhat')
 const chaiAsPromised = require('chai-as-promised')
 
 chai.use(chaiAsPromised)
-describe('PodCastNFT', function () {
+describe('KamonNFT', function () {
   let Contract, contract, HenkakuToken, henkakuToken
   let owner, alice, bob, fundAddress, price
 
@@ -14,7 +14,7 @@ describe('PodCastNFT', function () {
     await henkakuToken.deployed()
     price = ethers.utils.parseUnits('1000', 18)
 
-    Contract = await ethers.getContractFactory('PodCastNFT')
+    Contract = await ethers.getContractFactory('KamonNFT')
     ;[owner, alice, bob, fundAddress] = await ethers.getSigners()
     contract = await Contract.deploy(henkakuToken.address, fundAddress.address)
     await contract.deployed()
