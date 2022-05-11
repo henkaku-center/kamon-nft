@@ -393,7 +393,8 @@ describe('KamonNFT', function () {
           ethers.utils.parseUnits('1000', 18)
         )
       await tx.wait()
-      await contract.setKeyword('foobar', parseInt(Date.now() / 1000))
+      const keyword = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('foobar'))
+      await contract.setKeyword(keyword, parseInt(Date.now() / 1000))
     })
 
     it('answer was correct and updated point', async () => {
@@ -434,7 +435,8 @@ describe('KamonNFT', function () {
           ethers.utils.parseUnits('1000', 18)
         )
       await tx.wait()
-      await contract.setKeyword('foobar', parseInt(Date.now() / 1000))
+      const keyword = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('foobar'))
+      await contract.setKeyword(keyword, parseInt(Date.now() / 1000))
       await contract.connect(alice).checkAnswer('foobar')
     })
 
