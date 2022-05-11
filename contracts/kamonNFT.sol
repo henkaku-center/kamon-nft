@@ -194,14 +194,8 @@ contract KamonNFT is ERC721, Ownable {
         _burn(_tokenId);
     }
 
-    function setKeyword(bytes32 _keyword, uint256 startedAt)
-        public
-        onlyOwner
-    {
-        weeklyKeyword = PodcastKeyword(
-            startedAt,
-            _keyword
-        );
+    function setKeyword(bytes32 _keyword, uint256 startedAt) public onlyOwner {
+        weeklyKeyword = PodcastKeyword(startedAt, _keyword);
     }
 
     function setTokenAddr(address _erc20) public onlyOwner {
