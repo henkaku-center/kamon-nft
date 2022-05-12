@@ -126,6 +126,7 @@ describe('KamonNFT', function () {
 
   describe('mint', () => {
     it('can mint for admin', async function () {
+      expect(await contract.tokenIdOf(alice.address)).to.be.eq(0)
       const mintTx = await contract.mint(
         'https://example.com/podcast.png',
         ['Podcast Contributor'],
@@ -133,6 +134,7 @@ describe('KamonNFT', function () {
       )
       await mintTx.wait()
       expect(await contract.ownerOf(1)).to.be.equal(alice.address)
+      expect(await contract.tokenIdOf(alice.address)).to.be.eq(1)
     })
 
     it('cannot mint twice for the same user(owner)', async function () {
@@ -564,9 +566,11 @@ describe('KamonNFT', function () {
       await transferTx.wait()
 
       expect(await contract.balanceOf(alice.address)).to.eq(0)
+      expect(await contract.tokenIdOf(alice.address)).to.eq(0)
       expect(contract.roles(alice.address, 0)).to.be.reverted
       expect(contract.userAttribute(alice.address)).to.be.reverted
       expect(await contract.balanceOf(bob.address)).to.eq(1)
+      expect(await contract.tokenIdOf(bob.address)).to.eq(1)
       expect(await contract.roles(bob.address, 0)).to.eq(roles[0])
       expect(await contract.roles(bob.address, 1)).to.eq(roles[1])
       expect((await contract.userAttribute(bob.address)).point).to.eq(point)

@@ -34,6 +34,7 @@ contract KamonNFT is ERC721, Ownable {
     mapping(uint256 => string) public _tokenURIs;
     mapping(address => string[]) public roles;
     mapping(address => Attributes) public userAttribute;
+    mapping(address => uint256) public tokenIdOf;
 
     event BoughtMemberShipNFT(address _owner, uint256 _tokenId);
     event CheckedAnswer(address _by, uint256 _at);
@@ -68,8 +69,10 @@ contract KamonNFT is ERC721, Ownable {
         uint256 _tokenId
     ) internal virtual override {
         roles[_to] = roles[_from];
-        delete roles[_from];
+        tokenIdOf[_to] = tokenIdOf[_from];
         userAttribute[_to] = userAttribute[_from];
+        delete roles[_from];
+        delete tokenIdOf[_from];
         delete userAttribute[_from];
     }
 
@@ -119,6 +122,7 @@ contract KamonNFT is ERC721, Ownable {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _safeMint(_to, newItemId);
+        tokenIdOf[_to] = newItemId;
         roles[_to] = _roles;
         _setTokenURI(newItemId, finalTokenUri);
         return newItemId;
