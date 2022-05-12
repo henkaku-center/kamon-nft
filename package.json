@@ -2,9 +2,13 @@
   "name": "hardhat-project",
   "scripts": {
     "deploy-local": "npx hardhat run scripts/deploy.js --network localhost",
-    "deploy-rinkeby": "npx hardhat run scripts/deploy.js --network rinkeby",
+    "deploy-rinkeby": "npx hardhat run scripts/deployTest.js --network rinkeby",
     "verify-rinkeby": "npx hardhat verify --constructor-args arguments.js --network rinkeby",
-    "test": "yarn run hardhat test"
+    "test": "npx hardhat test",
+    "csize": "npx hardhat size-contracts",
+    "lint:sol": "yarn solhint --fix --max-warnings 5 \"contracts/**/*.sol\"",
+    "lint:js": "eslint --fix './{test,script}/**/*.{ts,js}' && prettier --write './{test,script,contracts}/**/*.{ts,js,sol}'",
+    "lint": "yarn lint:sol && yarn lint:js"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
@@ -13,13 +17,17 @@
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^16.0.0",
+    "eslint": "^8.13.0",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.4",
     "hardhat": "^2.8.3",
+    "hardhat-contract-sizer": "^2.5.1",
     "prettier": "^2.5.1",
-    "prettier-plugin-solidity": "^1.0.0-beta.19"
+    "prettier-plugin-solidity": "^1.0.0-beta.19",
+    "solhint": "^3.3.7",
+    "solhint-plugin-prettier": "^0.0.5"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.4.2"
+    "@openzeppelin/contracts": "^4.5.0"
   }
 }
