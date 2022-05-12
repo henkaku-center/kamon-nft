@@ -26,11 +26,14 @@ module.exports = {
       runs: 200
     }
   },
-  allowUnlimitedContractSize: true,
   networks: {
     rinkeby: {
       url: process.env.STAGING_ALCHEMY_KEY,
-      accounts: [process.env.PRIVATE_KEY]
+      accounts: [process.env.PRIVATE_KEY],
+    },
+    goerli: {
+      url: process.env.GOERLI_KEY,
+      accounts: [process.env.PRIVATE_KEY],
     },
     mainnet: {
       chainId: 137,

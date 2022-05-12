@@ -8,7 +8,7 @@ const main = async () => {
   await henkakuToken.deployed()
   const kamonNFTContract = await hre.ethers.getContractFactory('KamonNFT')
   const contract = await kamonNFTContract.deploy(
-    '0x6FDDbe89B90795Eb0652F80fc3dBC2c61e753b1C', //henkakuToken.address,
+    henkakuToken.address,
     process.env.FUND_ADDRESS
   )
 
